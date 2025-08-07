@@ -87,6 +87,9 @@ const server = http.createServer(async (request, response) => {
 		try {
 			data = await Modifier.modify(data, modifiers, path.dirname(file))
 		} catch (error: any) {
+			if (error instanceof Modifier.ModifierFilereadError) {
+				throw new HttpError(error.message, 404)
+			}
 			if (error instanceof Modifier.ModifierSyntaxError) {
 				throw new HttpError(error.message, 500)
 			}

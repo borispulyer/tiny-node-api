@@ -37,7 +37,7 @@ export async function parse(file: string): Promise<any> {
 		throw new errors.ParserMissingError(`No parser for extension "${file_extension}" available`)
 	}
 	try {
-		return parser.fn(file)
+		return await parser.fn(file)
 	} catch (error: any) {
 		if (error instanceof SyntaxError || error instanceof yaml.YAMLParseError) {
 			throw new errors.ParserSyntaxError(`Syntax error in file "${file}"`)

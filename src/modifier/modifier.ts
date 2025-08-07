@@ -38,11 +38,10 @@ export async function modify(
 			throw new errors.ModifierMissingError(`No modifier for '${selector}' available.`)
 		}
 		try {
-			data = modifier.fn(data, { baseDir: base_dir })
+			data = await modifier.fn(data, { baseDir: base_dir })
 		} catch (error: any) {
-			console.log('[MODIFIERS.TS]')
 			if (error.code === 'ENOENT') {
-				throw new errors.ModifierFilereadError(`File not found`)
+				throw new errors.ModifierFilereadError(error.message ?? `File read error found`)
 			}
 			throw error
 		}
@@ -50,6 +49,6 @@ export async function modify(
 	return data
 }
 
-export function isFormatterRegistered(selector: string): boolean {
+export function isModifierRegistered(selector: string): boolean {
 	return _modifiersIndex.has(selector.toLowerCase().trim())
 }

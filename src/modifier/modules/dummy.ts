@@ -7,8 +7,8 @@ import * as errors from '../errors'
 import * as Parser from '@/parser'
 
 export default {
-	selector: 'uppercase',
-	fn: async (data: any, options: any, seen: Set<string>): Promise<any> => {
-		return { error: 'Ups!' }
+	selector: 'dummy',
+	fn: async (data: any): Promise<any> => {
+		return { message: 'This is a dummy modifier.' }
 	},
 } satisfies Modifier

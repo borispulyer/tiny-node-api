@@ -39,12 +39,12 @@ export async function format(
 	mime: formatters.Formatter['mime']
 	content: string
 }> {
-	const formater = _formattersIndex.get(selector.toLowerCase().trim())
-	if (!formater) {
+	const formatter = _formattersIndex.get(selector.toLowerCase().trim())
+	if (!formatter) {
 		throw new errors.FormatterMissingError(`No formatter for '${selector}' available.`)
 	}
 	try {
-		return { mime: formater.mime, content: await formater.fn(data) }
+		return { mime: formatter.mime, content: await formatter.fn(data) }
 	} catch (error: any) {
 		throw error
 	}
