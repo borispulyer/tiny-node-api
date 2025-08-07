@@ -58,10 +58,10 @@ const server = http.createServer(async (request, response) => {
 		)
 		if (!file.startsWith(DIR_PUBLIC)) throw new HttpError('Forbidden', 403)
 
-		// Validate style paramter
+		// Validate style parameter
 		const style = (searchParams.get('style') ?? DEFAULT_STYLE).toLowerCase().trim()
 		if (!Formatter.isFormatterRegistered(style))
-			throw new HttpError(`Style paramter "${style}" not valid`, 400)
+			throw new HttpError(`Style parameter "${style}" not valid`, 400)
 
 		let data = null
 
@@ -80,7 +80,6 @@ const server = http.createServer(async (request, response) => {
 			}
 			throw error
 		}
-		// logger.debug(`[Data:]`, data)
 
 		// Modifier
 		let modifiers = ['include']
@@ -95,7 +94,6 @@ const server = http.createServer(async (request, response) => {
 			}
 			throw error
 		}
-		// logger.debug(`[Data:]`, data)
 
 		// Formatter
 		try {
@@ -106,9 +104,9 @@ const server = http.createServer(async (request, response) => {
 			}
 			throw error
 		}
-		// logger.debug(`[Data:]`, data)
 
 		const t1 = performance.now()
+
 		// Send
 		logger.info(`GET "${file}" as ${style}\t${(t1 - t0).toFixed(2)} ms`)
 		response.writeHead(200, { 'Content-Type': data.mime }).end(data.content)

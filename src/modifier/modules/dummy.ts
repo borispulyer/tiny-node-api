@@ -2,9 +2,9 @@
  * Imports
  */
 import path from 'node:path'
-import { Modifier } from '.'
 import * as errors from '../errors'
 import * as Parser from '@/parser'
+import type { Modifier } from '.'
 
 export default {
 	selector: 'dummy',

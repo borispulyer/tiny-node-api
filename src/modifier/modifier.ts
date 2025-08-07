@@ -40,9 +40,6 @@ export async function modify(
 		try {
 			data = await modifier.fn(data, { baseDir: base_dir })
 		} catch (error: any) {
-			if (error.code === 'ENOENT') {
-				throw new errors.ModifierFilereadError(error.message ?? `File read error found`)
-			}
 			throw error
 		}
 	}

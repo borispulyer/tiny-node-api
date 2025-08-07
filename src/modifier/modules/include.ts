@@ -2,10 +2,10 @@
  * Imports
  */
 import path from 'node:path'
-import { Modifier } from '.'
 import * as errors from '../errors'
 import * as Parser from '@/parser'
 import { logger } from '@/core'
+import type { Modifier } from '.'
 
 export default {
 	selector: 'include',
@@ -20,21 +20,18 @@ export default {
 			if (typeof node === 'object') {
 				if (typeof node['__include__'] === 'string') {
 					const file = path.resolve(base_dir, node['__include__'])
-					logger.debug(file)
+
 					if (seen.has(file)) {
-						throw new errors.ModifierSyntaxError(`Circular __include__ at "${file}"`)
+						throw new errors.ModifierSyntaxError(`Multiple __include__ of "${file}"`)
 					}
 					seen.add(file)
 
 					try {
-						return _walk(await Parser.parse(file), path.dirname(file))
+						return await _walk(await Parser.parse(file), path.dirname(file))
 					} catch (error: any) {
-						if (error.code === 'ENOENT') {
-							throw new errors.ModifierFilereadError(
-								`Included file "${file}" not found`,
-							)
+						if (error instanceof Parser.ParserError) {
+							return node
 						}
-
 						throw error
 					}
 				}
@@ -46,7 +43,7 @@ export default {
 		}
 
 		const seen: Set<string> = new Set<string>()
-		if (!options.baseDir) throw new errors.ModifierError(`options.baseDir ist mandatory`)
-		return _walk(data, options.baseDir)
+		if (!options.baseDir) throw new errors.ModifierError(`options.baseDir is mandatory`)
+		return await _walk(data, options.baseDir)
 	},
 } satisfies Modifier

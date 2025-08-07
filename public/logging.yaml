@@ -17,4 +17,4 @@ handlers:
 formatters:
   detailed:
     format: '%(asctime)s [%(levelname)s] %(name)s - %(message)s'
-config: !include ./config.yaml
+#config: !include ./config.yaml
