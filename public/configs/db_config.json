@@ -1,0 +1,18 @@
+{
+  "connection": {
+    "host": "db.example.internal",
+    "port": 5432,
+    "user": "app_user",
+    "password": "S3cr3tP@ssw0rd!",
+    "database": "app_db"
+  },
+  "pool": {
+    "maxSize": 20,
+    "minIdle": 2,
+    "timeout": 30000
+  },
+  "ssl": {
+    "enabled": true,
+    "caFile": "/etc/ssl/certs/ca.pem"
+  }
+}

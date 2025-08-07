@@ -1,0 +1,5 @@
+[
+  { "__include__": "./configs/app_config.yaml" },
+  { "__include__": "./configs/db_config.json" },
+  { "__include__": "./configs/server_settings.yaml" }
+]

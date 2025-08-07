@@ -1,0 +1,17 @@
+users:
+- id: 1
+  name: Alice
+  email: alice@example.com
+  active: true
+- id: 2
+  name: Bob
+  email: bob@example.com
+  active: false
+- id: 3
+  name: Charlie
+  email: charlie@example.com
+  active: true
+password_policy:
+  min_length: 12
+  require_special: true
+  password_history: 5

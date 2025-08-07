@@ -1,0 +1,28 @@
+{
+  "roles": [
+    {
+      "name": "admin",
+      "permissions": [
+        "create",
+        "read",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "name": "editor",
+      "permissions": [
+        "create",
+        "read",
+        "update"
+      ]
+    },
+    {
+      "name": "viewer",
+      "permissions": [
+        "read"
+      ]
+    }
+  ],
+  "defaultRole": "viewer"
+}

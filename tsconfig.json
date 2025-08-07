@@ -1,0 +1,15 @@
+{
+  "extends": "@tsconfig/node24/tsconfig.json",
+  "include": ["./src/**/*.ts"],
+  "exclude": ["./node_modules"],
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "tsBuildInfoFile": "./node_modules/.tmp/tsbuild.build.tsbuildinfo",
+    "baseUrl": "./",
+    "paths": { "@/*": ["./src/*"] },
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "allowUnreachableCode": true
+  }
+}

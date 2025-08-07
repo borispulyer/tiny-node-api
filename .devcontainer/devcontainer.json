@@ -1,0 +1,15 @@
+{
+  "name": "dev-tiny-config-server",
+  "dockerComposeFile": "compose.yaml",
+  "service": "dev-tiny-config-server",
+  "workspaceFolder": "/workspace",
+  "customizations": {
+    "vscode": {
+      "extensions": ["dbaeumer.vscode-eslint", "esbenp.prettier-vscode"]
+    }
+  },
+  "forwardPorts": [3000],
+  // "postStartCommand": "npm run start",
+  "shutdownAction": "stopCompose"
+  // "shutdownAction": "none"
+}

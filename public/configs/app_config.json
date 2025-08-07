@@ -1,0 +1,22 @@
+{
+  "environment": "development",
+  "features": {
+    "enableSignup": true,
+    "enableBeta": false
+  },
+  "limits": {
+    "maxUploadSizeMB": 50,
+    "sessionTimeoutMinutes": 60
+  },
+  "dependencies": {
+    "redis": {
+      "host": "redis.internal",
+      "port": 6379
+    },
+    "s3": {
+      "bucket": "app-dev-bucket",
+      "region": "eu-central-1"
+    }
+  },
+  "__include__": "../logging.yaml"
+}

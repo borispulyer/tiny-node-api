@@ -1,0 +1,26 @@
+##
+# Development Container
+##
+services:
+
+  # Development Container
+  dev-tiny-config-server:
+    build:
+      context: "../"
+      dockerfile: "./.devcontainer/Dockerfile"
+    container_name: "dev-tiny-config-server"
+    restart: "unless-stopped"
+    security_opt:
+      - "no-new-privileges:true"
+    volumes:
+      - "../:/workspace"
+      - "node_modules:/workspace/node_modules"
+    environment:
+      TZ: "Europe/Berlin"
+
+##
+# Volumes
+##
+volumes:
+  # node_modules
+  node_modules:

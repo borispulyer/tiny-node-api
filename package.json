@@ -1,0 +1,42 @@
+{
+  "name": "yaml-merger-service",
+  "version": "0.1.0",
+  "description": "A tiny NodeJS server for config files like YAML or JSON. Supports merging multiple config files into one.",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "npm run build && node dist/server.js",
+    "build": "tsc -b tsconfig.json",
+    "dev": "tsx watch --clear-screen=false src/server.ts",
+    "typecheck": "tsc -b",
+    "format": "prettier --write src/",
+    "format:check": "prettier --check src/"
+  },
+  "keywords": [
+    "server",
+    "yaml",
+    "yaml-parser",
+    "yaml2json",
+    "json",
+    "json-parser",
+    "json2yaml",
+    "merge",
+    "config-files",
+    "parser"
+  ],
+  "author": "Boris Pulyer",
+  "license": "GNU",
+  "dependencies": {
+    "yaml": "^2.3.3"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@tsconfig/node24": "^24.0.1",
+    "@types/node": "^24.1.0",
+    "prettier": "^3.6.2",
+    "tsx": "^4.20.3",
+    "typescript": "^5.9.2"
+  }
+}
