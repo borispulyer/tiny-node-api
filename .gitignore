@@ -1,28 +1,67 @@
-# Logs
-logs
+# Node
+node_modules/
+dist/
+build/
+out/
+.npm/
+.pnpm-store/
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# TypeScript
+*.tsbuildinfo
+
+# Tests
+coverage/
+.nyc_output/
+
+# Caches
+.cache/
+.parcel-cache/
+.turbo/
+.eslintcache
+.stylelintcache
+.vite/
+.vite-cache/
+
+# Logs / PIDs / Reports
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-lerna-debug.log*
+pids/
+*.pid
+*.seed
+report.*.json
 
-node_modules
-.DS_Store
-dist
-dist-ssr
-coverage
-*.local
-trash
+# Env
+.env
+.env.*
+!.env.example
 
-# Editor directories and files
+# Editor / IDE
+.idea/
+.fleet/
+.history/
 .vscode/*
+!.vscode/settings.json
 !.vscode/extensions.json
-.idea
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+!.vscode/tasks.json
+!.vscode/launch.json
 
-*.tsbuildinfo
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+tmp/
+temp/
+trash/
+wastebin/
+brainstorming/

@@ -1,17 +1,7 @@
 {
   "name": "yaml-merger-service",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "description": "A tiny NodeJS server for config files like YAML or JSON. Supports merging multiple config files into one.",
-  "main": "src/server.js",
-  "type": "module",
-  "scripts": {
-    "start": "npm run build && node dist/server.js",
-    "build": "tsc -b tsconfig.json",
-    "dev": "tsx watch --clear-screen=false src/server.ts",
-    "typecheck": "tsc -b",
-    "format": "prettier --write src/",
-    "format:check": "prettier --check src/"
-  },
   "keywords": [
     "server",
     "yaml",
@@ -26,17 +16,33 @@
   ],
   "author": "Boris Pulyer",
   "license": "GNU",
-  "dependencies": {
-    "yaml": "^2.3.3"
-  },
+  "private": true,
+  "type": "module",
+  "main": "dist/server.js",
   "engines": {
     "node": ">=20"
+  },
+  "scripts": {
+    "dev": "tsx watch --clear-screen=false src/server.ts",
+    "clean": "rm -rf dist",
+    "build": "tsup --config tsup.config.ts",
+    "build:prod": "cross-env NODE_ENV=production tsup --config tsup.config.ts",
+    "start": "node --enable-source-maps dist/server.js",
+    "start:prod": "cross-env NODE_ENV=production node --enable-source-maps dist/server.js",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "format": "prettier --write src/",
+    "format:check": "prettier --check src/"
+  },
+  "dependencies": {
+    "yaml": "^2.3.3"
   },
   "devDependencies": {
     "@tsconfig/node24": "^24.0.1",
     "@types/node": "^24.1.0",
     "prettier": "^3.6.2",
     "tsx": "^4.20.3",
-    "typescript": "^5.9.2"
+    "tsup": "^8.2.4",
+    "typescript": "^5.9.2",
+    "cross-env": "^7.0.3"
   }
 }
