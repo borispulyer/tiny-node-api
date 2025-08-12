@@ -1,5 +1,5 @@
 ##
-# First Stage:
+# Build Stage:
 # Build App with Alpine
 ##
 FROM node:24-alpine AS build
@@ -16,8 +16,7 @@ RUN npm run build:prod
 
 
 ##
-# Final Stage:
-# Runtime
+# Runtime Stage:
 ##
 FROM node:24-alpine
 
@@ -27,11 +26,9 @@ ENV PORT=3000
 WORKDIR /app
 
 COPY package*.json ./
-
-RUN npm ci --omit=dev
-
 COPY --from=build /app/dist ./dist
 
+RUN npm ci --omit=dev
 RUN mkdir -p ./public && chown -R node:node /app
 
 USER node

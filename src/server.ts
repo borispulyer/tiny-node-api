@@ -2,6 +2,9 @@
  * Imports
  */
 
+// Development Dependencies
+import 'dotenv/config'
+
 // Dependencies
 import http from 'node:http'
 import path from 'node:path'
@@ -11,6 +14,7 @@ import { URL } from 'node:url'
 import * as Parser from '@/parser'
 import * as Modifier from '@/modifier'
 import * as Formatter from '@/formatter'
+import * as Auth from '@/auth'
 import { logger } from './core'
 
 /*
@@ -26,12 +30,18 @@ const DEFAULT_STYLE: string = (process.env.DEFAULT_STYLE ?? 'json').toLowerCase(
  * Error Definitions
  */
 class HttpError extends Error {
-	public statusCode: number | undefined = undefined
+	public status: number | undefined
+	public headers: http.OutgoingHttpHeaders | http.OutgoingHttpHeader[] | undefined
 
-	public constructor(message: string, statusCode: number) {
+	public constructor(
+		message: string,
+		status?: number,
+		headers?: http.OutgoingHttpHeaders | http.OutgoingHttpHeader[],
+	) {
 		super(message)
 		this.name = this.constructor.name
-		this.statusCode = statusCode
+		this.status = status
+		this.headers = headers
 	}
 }
 
@@ -45,6 +55,19 @@ const server = http.createServer(async (request, response) => {
 		// Validate Method
 		if (request.method !== 'GET') throw new HttpError('Method not allowed', 405)
 
+		// Handle Authentication
+		try {
+			const token = await Auth.auth(request)
+			console.log(token)
+		} catch (error: any) {
+			if (error instanceof Auth.AuthError) {
+				throw new HttpError(`[${error.name}] ${error.message}`, error.header.status, {
+					'WWW-Authenticate': error.getWWWAuthenticateHeader(),
+				})
+			}
+			throw error
+		}
+
 		// Get filename and parameters
 		const { pathname, searchParams } = new URL(
 			request.url!,
@@ -56,6 +79,10 @@ const server = http.createServer(async (request, response) => {
 			DIR_PUBLIC,
 			path.posix.normalize(decodeURIComponent(pathname)).replace(/^\/+/, ''),
 		)
+		if (decodeURIComponent(pathname).startsWith('/_heartbeat')) {
+			response.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' }).end('❤')
+			return
+		}
 		if (!file.startsWith(DIR_PUBLIC)) throw new HttpError('Forbidden', 403)
 
 		// Validate style parameter
@@ -111,9 +138,12 @@ const server = http.createServer(async (request, response) => {
 		logger.info(`GET "${file}" as ${style}\t${(t1 - t0).toFixed(2)} ms`)
 		response.writeHead(200, { 'Content-Type': data.mime }).end(data.content)
 	} catch (error: any) {
+		logger.error(error)
 		if (error instanceof HttpError) {
-			const status_code = error.statusCode ?? 500
-			response.writeHead(status_code).end(`Error ${status_code} - ${error.message}`)
+			const status_code = error.status ?? 500
+			response
+				.writeHead(status_code, error.headers)
+				.end(`Error ${status_code} - ${error.message}`)
 			return
 		}
 		throw error

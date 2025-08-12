@@ -12,6 +12,7 @@ import { logger } from '../core'
  */
 const _parsersIndex: Map<string, parsers.Parser> = (() => {
 	const map: Map<string, parsers.Parser> = new Map()
+	logger.debug(`Registering available PARSERS for the following file extensions:`)
 	for (const parser of Object.values(parsers)) {
 		for (const extension of parser.extensions) {
 			const ext = extension.toLowerCase()
@@ -20,8 +21,8 @@ const _parsersIndex: Map<string, parsers.Parser> = (() => {
 			}
 			map.set(ext, parser)
 		}
+		logger.debug(`  - ${parser.extensions.map((value) => `"${value}"`).join(', ')}`)
 	}
-	logger.debug('Creating index of available parsers.')
 	return map
 })()
 

@@ -11,14 +11,17 @@ import { logger } from '../core'
  */
 const _modifiersIndex: Map<string, modifiers.Modifier> = (() => {
 	const map: Map<string, modifiers.Modifier> = new Map()
+
+	logger.debug(`Registering available MODIFIERS:`)
+
 	for (const modifier of Object.values(modifiers)) {
 		const sel = modifier.selector.toLowerCase()
 		if (map.has(sel)) {
 			throw new errors.ModifierError(`Duplicate modifier for selector "${sel}" detected.`)
 		}
 		map.set(sel, modifier)
+		logger.debug(`  - "${sel}"`)
 	}
-	logger.debug('Creating index of available modifiers.')
 	return map
 })()
 
