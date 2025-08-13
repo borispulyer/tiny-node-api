@@ -6,7 +6,12 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "baseUrl": "./",
-    "paths": { "@/*": ["./src/*"] },
+    "paths": {
+      "@/*": ["./src/*"],
+      "@config": ["./src/core/config"],
+      "@config/*": ["./src/core/config/*"],
+      "@utils/*": ["./src/core/utilities/*"]
+    },
     "module": "esnext",
     "moduleResolution": "bundler",
     "sourceMap": true,

@@ -1,3 +1,11 @@
+/*
+ * Imports
+ */
+import { config } from '@config'
+
+/*
+ * Type Definitions
+ */
 type Header = {
 	status?: number
 	realm?: string
@@ -11,11 +19,11 @@ type Header = {
 export class AuthError extends Error {
 	public header: Header = {}
 
-	public constructor(message?: string, realm: string = 'Config API') {
+	public constructor(message?: string) {
 		super(message)
 		this.name = this.constructor.name
 		this.header.status = 401
-		this.header.realm = realm
+		this.header.realm = config.auth.oauth2.realm
 		this.header.error = 'invalid_token'
 		this.header.error_description = undefined
 	}
@@ -30,9 +38,18 @@ export class AuthError extends Error {
 	}
 }
 
+export class AuthConfigurationError extends AuthError {
+	public constructor(message?: string) {
+		super(message)
+		this.name = this.constructor.name
+		this.header.status = 500
+		if (!message) this.message = 'Authentication module is not properly configured'
+	}
+}
+
 export class AuthTokenMissingError extends AuthError {
-	public constructor(message?: string, realm?: string) {
-		super(message, realm)
+	public constructor(message?: string) {
+		super(message)
 		this.name = this.constructor.name
 		this.header.status = 401
 		this.header.error = 'invalid_token'
@@ -42,8 +59,8 @@ export class AuthTokenMissingError extends AuthError {
 }
 
 export class AuthTokenExpiredError extends AuthError {
-	public constructor(message?: string, realm?: string) {
-		super(message, realm)
+	public constructor(message?: string) {
+		super(message)
 		this.name = this.constructor.name
 		this.header.status = 401
 		this.header.error = 'invalid_token'
@@ -53,8 +70,8 @@ export class AuthTokenExpiredError extends AuthError {
 }
 
 export class AuthTokenInvalidError extends AuthError {
-	public constructor(message?: string, realm?: string) {
-		super(message, realm)
+	public constructor(message?: string) {
+		super(message)
 		this.name = this.constructor.name
 		this.header.status = 401
 		this.header.error = 'invalid_token'
@@ -64,8 +81,8 @@ export class AuthTokenInvalidError extends AuthError {
 }
 
 export class AuthClaimValidationError extends AuthError {
-	public constructor(message?: string, realm?: string) {
-		super(message, realm)
+	public constructor(message?: string) {
+		super(message)
 		this.name = this.constructor.name
 		this.header.status = 401
 		this.header.error = 'invalid_token'

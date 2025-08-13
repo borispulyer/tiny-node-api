@@ -2,24 +2,31 @@
  * Imports
  */
 import http from 'node:http'
-// import { jwtVerify, createRemoteJWKSet, errors as joseErrors} from 'jose'
 import * as jose from 'jose'
 
 import * as errors from './errors'
-import { logger } from '../core'
-
-const ISSUER = process.env.ZITADEL_ISSUER
-const AUDIENCE = process.env.ZITADEL_AUDIENCE
-const JWKS = jose.createRemoteJWKSet(new URL(`${ISSUER.replace(/\/$/, '')}/oauth/v2/keys`))
-// const REALM = 'Config API'
+import { config } from '@config'
 
 export async function auth(request: http.IncomingMessage): Promise<jose.JWTPayload> {
+	// Validte configuration
+	if (
+		!config.auth.oauth2.audience ||
+		!config.auth.oauth2.issuer_uri ||
+		!config.auth.oauth2.jwks_uri
+	) {
+		throw new errors.AuthConfigurationError()
+	}
+
+	// Get token
 	const token = getBearerToken(request)
 	if (!token) throw new errors.AuthTokenMissingError()
+
+	// Verify token
+	const jwks = jose.createRemoteJWKSet(new URL(config.auth.oauth2.jwks_uri))
 	try {
-		const { payload } = await jose.jwtVerify(token, JWKS, {
-			issuer: ISSUER.replace(/\/$/, ''),
-			audience: AUDIENCE,
+		const { payload } = await jose.jwtVerify(token, jwks, {
+			issuer: config.auth.oauth2.issuer_uri,
+			audience: config.auth.oauth2.audience,
 		})
 		return payload
 	} catch (error: any) {
@@ -33,8 +40,8 @@ export async function auth(request: http.IncomingMessage): Promise<jose.JWTPaylo
 	}
 }
 
-function getBearerToken(request: http.IncomingMessage): string | null {
+function getBearerToken(request: http.IncomingMessage): string | undefined {
 	const token = request?.headers?.authorization?.split(' ')
 	if (token && token[0] === 'Bearer' && token[1]) return token[1]
-	return null
+	return undefined
 }

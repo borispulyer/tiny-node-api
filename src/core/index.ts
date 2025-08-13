@@ -1,5 +1,6 @@
 /**
- * Barrel
+ * Core
  */
 export * as logger from './logger'
-// export * as config from './config'
+export { config } from './config'
+export * as utils from './utilities'
