@@ -12,7 +12,7 @@ import { logger } from '../core'
  */
 const _parsersIndex: Map<string, parsers.Parser> = (() => {
 	const map: Map<string, parsers.Parser> = new Map()
-	logger.debug(`Registering available PARSERS for the following file extensions:`)
+	logger.debug(`Registering PARSERS:`)
 	for (const parser of Object.values(parsers)) {
 		for (const extension of parser.extensions) {
 			const ext = extension.toLowerCase()
@@ -32,7 +32,7 @@ const _parsersIndex: Map<string, parsers.Parser> = (() => {
  * @returns
  */
 export async function parse(file: string): Promise<any> {
-	const file_extension = path.extname(file).toLowerCase()
+	const file_extension = path.extname(file).toLowerCase().replace(/^\./, '')
 	const parser = _parsersIndex.get(file_extension)
 	if (!parser) {
 		throw new errors.ParserMissingError(`No parser for extension "${file_extension}" available`)
@@ -51,5 +51,9 @@ export async function parse(file: string): Promise<any> {
 }
 
 export function isParserRegistered(file: string): boolean {
-	return _parsersIndex.has(path.extname(file).toLowerCase().trim())
+	return _parsersIndex.has(path.extname(file).toLowerCase().trim().replace(/^\./, ''))
+}
+
+export function getSupportedExtensions(): string[] {
+	return [..._parsersIndex.keys()]
 }

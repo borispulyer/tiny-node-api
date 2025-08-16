@@ -3,6 +3,7 @@
  */
 import path from 'node:path'
 import { Config } from '@config/config.types'
+import { HttpError } from '@/errors'
 
 /**
  * Default configuratiopn values
@@ -10,8 +11,24 @@ import { Config } from '@config/config.types'
 export const defaults: Config = {
 	server: {
 		port: 3000,
-		root: path.resolve(import.meta.dirname, '..', 'public'),
+		root: path.resolve(import.meta.dirname, '../../../', 'public'),
+		locations: {
+			heartbeat: true,
+			endpoints: true,
+			files: true,
+		},
 	},
+	files: {
+		resolve_extension: true,
+	},
+	endpoints: [
+		{
+			enable: true,
+			path: '/api/v1/test',
+			file: './dummy.yaml',
+			format: 'json',
+		},
+	],
 	auth: {
 		enable: false,
 		oauth2: {

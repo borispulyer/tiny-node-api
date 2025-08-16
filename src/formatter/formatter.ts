@@ -11,7 +11,7 @@ import { logger } from '../core'
  */
 const _formattersIndex: Map<string, formatters.Formatter> = (() => {
 	const map: Map<string, formatters.Formatter> = new Map()
-	logger.debug(`Registering available FORMATTERS for the following formats:`)
+	logger.debug(`Registering FORMATTERS:`)
 	for (const formatter of Object.values(formatters)) {
 		for (const selector of formatter.selectors) {
 			const sel = selector.toLowerCase()

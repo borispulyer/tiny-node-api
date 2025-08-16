@@ -5,7 +5,22 @@ export interface Config {
 	server: {
 		port: number
 		root: string
+		locations: {
+			heartbeat: boolean
+			endpoints: boolean
+			files: boolean
+		}
 	}
+	files: {
+		resolve_extension: boolean
+	}
+	endpoints: {
+		enable: boolean
+		path: string
+		file: string
+		format?: string
+		filter?: (data: any, params?: Record<string, string>) => any
+	}[]
 	auth: {
 		enable: boolean
 		oauth2: {

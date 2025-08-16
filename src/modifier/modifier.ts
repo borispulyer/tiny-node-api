@@ -12,7 +12,7 @@ import { logger } from '../core'
 const _modifiersIndex: Map<string, modifiers.Modifier> = (() => {
 	const map: Map<string, modifiers.Modifier> = new Map()
 
-	logger.debug(`Registering available MODIFIERS:`)
+	logger.debug(`Registering MODIFIERS:`)
 
 	for (const modifier of Object.values(modifiers)) {
 		const sel = modifier.selector.toLowerCase()

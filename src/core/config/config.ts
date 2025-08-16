@@ -19,10 +19,19 @@ const env: types.DeepPartial<Config> = {
 					parsers.parseString(process.env.SERVER_ROOT) as string,
 				)
 			: undefined,
+		locations: {
+			heartbeat: parsers.parseBool(process.env.SERVER_LOCATIONS_HEARTBEAT),
+			endpoints: parsers.parseBool(process.env.SERVER_LOCATIONS_ENDPOINTS),
+			files: parsers.parseBool(process.env.SERVER_LOCATIONS_FILES),
+		},
+	},
+	files: {
+		resolve_extension: parsers.parseBool(process.env.FILES_RESOLVE_EXT),
 	},
 	auth: {
 		enable: parsers.parseBool(process.env.AUTH_ENABLE),
 		oauth2: {
+			realm: parsers.parseString(process.env.AUTH_OAUTH2_REALM),
 			issuer_uri: parsers.parseString(process.env.AUTH_OAUTH2_ISSUER),
 			jwks_uri: parsers.parseString(process.env.AUTH_OAUTH2_JWKS),
 			audience: parsers.parseString(process.env.AUTH_OAUTH2_AUDIENCE),
