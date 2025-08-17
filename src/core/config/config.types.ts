@@ -8,10 +8,16 @@ export interface Config {
 		locations: {
 			heartbeat: boolean
 			endpoints: boolean
-			files: boolean
+			filesystem: boolean
 		}
+		timeouts: {
+			keepAlive: number
+			headers: number
+			request: number
+		}
+		maxRequestsPerSocket: number
 	}
-	files: {
+	filesystem: {
 		resolve_extension: boolean
 	}
 	endpoints: {
@@ -25,8 +31,8 @@ export interface Config {
 		enable: boolean
 		oauth2: {
 			realm: string | undefined
-			issuer_uri: string | undefined
-			jwks_uri: string | undefined
+			issuerUri: string | undefined
+			jwksUri: string | undefined
 			audience: string | undefined
 		}
 	}

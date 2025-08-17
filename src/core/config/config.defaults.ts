@@ -6,7 +6,7 @@ import { Config } from '@config/config.types'
 import { HttpError } from '@/errors'
 
 /**
- * Default configuratiopn values
+ * Default configuration values
  */
 export const defaults: Config = {
 	server: {
@@ -15,10 +15,16 @@ export const defaults: Config = {
 		locations: {
 			heartbeat: true,
 			endpoints: true,
-			files: true,
+			filesystem: true,
 		},
+		timeouts: {
+			keepAlive: 75_000,
+			headers: 80_000,
+			request: 60_000,
+		},
+		maxRequestsPerSocket: 1_000,
 	},
-	files: {
+	filesystem: {
 		resolve_extension: true,
 	},
 	endpoints: [
@@ -33,8 +39,8 @@ export const defaults: Config = {
 		enable: false,
 		oauth2: {
 			realm: 'Config API',
-			issuer_uri: undefined,
-			jwks_uri: undefined,
+			issuerUri: undefined,
+			jwksUri: undefined,
 			audience: undefined,
 		},
 	},

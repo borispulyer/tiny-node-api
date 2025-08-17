@@ -5,6 +5,7 @@ import path from 'node:path'
 import * as errors from '../errors'
 import * as Parser from '@/parser'
 import { logger } from '@/core'
+import { files } from '@utils'
 import type { Modifier } from '.'
 
 export default {
@@ -20,6 +21,11 @@ export default {
 			if (typeof node === 'object') {
 				if (typeof node['__include__'] === 'string') {
 					const file = path.resolve(base_dir, node['__include__'])
+					if (!files.isFileWithinRoot(file)) {
+						throw new errors.ModifierFileAccesError(
+							`Forbidden: "${file}" is not within server root directory`,
+						)
+					}
 
 					if (seen.has(file)) {
 						throw new errors.ModifierSyntaxError(`Multiple __include__ of "${file}"`)

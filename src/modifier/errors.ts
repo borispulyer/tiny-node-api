@@ -13,7 +13,13 @@ export class ModifierMissingError extends ModifierError {
 		this.name = this.constructor.name
 	}
 }
-export class ModifierFilereadError extends ModifierError {
+export class ModifierFileReadError extends ModifierError {
+	public constructor(message: string) {
+		super(message)
+		this.name = this.constructor.name
+	}
+}
+export class ModifierFileAccesError extends ModifierError {
 	public constructor(message: string) {
 		super(message)
 		this.name = this.constructor.name

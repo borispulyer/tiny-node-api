@@ -35,7 +35,7 @@ export function assignSourceToTemplate<T extends Record<string, any>>(
 		const target_value = target[key]
 		const source_value = (source as any)[key]
 
-		// Check if own porperty and not undefined
+		// Check if own property and not undefined
 		if (!Object.hasOwn(source, key)) continue
 		if (source_value === undefined && !overwrite_with_undefined) continue
 

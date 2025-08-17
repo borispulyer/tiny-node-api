@@ -4,10 +4,10 @@
 import path from 'node:path'
 import { Config } from '@config/config.types'
 import { defaults } from '@config/config.defaults'
-import { parsers, objects, types } from '@utils/index'
+import { parsers, objects, types } from '@utils'
 
 /**
- * Assign environment varibales to config and merge with defaults
+ * Assign environment variables to config and merge with defaults
  */
 const env: types.DeepPartial<Config> = {
 	server: {
@@ -22,18 +22,24 @@ const env: types.DeepPartial<Config> = {
 		locations: {
 			heartbeat: parsers.parseBool(process.env.SERVER_LOCATIONS_HEARTBEAT),
 			endpoints: parsers.parseBool(process.env.SERVER_LOCATIONS_ENDPOINTS),
-			files: parsers.parseBool(process.env.SERVER_LOCATIONS_FILES),
+			filesystem: parsers.parseBool(process.env.SERVER_LOCATIONS_FILESYSTEM),
 		},
+		timeouts: {
+			keepAlive: parsers.parseNum(process.env.SERVER_TIMEOUTS_KEEPALIVE),
+			headers: parsers.parseNum(process.env.SERVER_TIMEOUTS_HEADERS),
+			request: parsers.parseNum(process.env.SERVER_TIMEOUTS_REQUEST),
+		},
+		maxRequestsPerSocket: parsers.parseNum(process.env.SERVER_MAX_REQUESTS),
 	},
-	files: {
-		resolve_extension: parsers.parseBool(process.env.FILES_RESOLVE_EXT),
+	filesystem: {
+		resolve_extension: parsers.parseBool(process.env.FILESYSTEM_RESOLVE_EXT),
 	},
 	auth: {
 		enable: parsers.parseBool(process.env.AUTH_ENABLE),
 		oauth2: {
 			realm: parsers.parseString(process.env.AUTH_OAUTH2_REALM),
-			issuer_uri: parsers.parseString(process.env.AUTH_OAUTH2_ISSUER),
-			jwks_uri: parsers.parseString(process.env.AUTH_OAUTH2_JWKS),
+			issuerUri: parsers.parseString(process.env.AUTH_OAUTH2_ISSUER),
+			jwksUri: parsers.parseString(process.env.AUTH_OAUTH2_JWKS),
 			audience: parsers.parseString(process.env.AUTH_OAUTH2_AUDIENCE),
 		},
 	},

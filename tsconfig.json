@@ -10,6 +10,7 @@
       "@/*": ["./src/*"],
       "@config": ["./src/core/config"],
       "@config/*": ["./src/core/config/*"],
+      "@utils": ["./src/core/utilities"],
       "@utils/*": ["./src/core/utilities/*"]
     },
     "module": "esnext",

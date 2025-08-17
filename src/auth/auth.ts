@@ -7,13 +7,13 @@ import * as jose from 'jose'
 import * as errors from './errors'
 import { config } from '@config'
 
+const _jwks = config.auth.oauth2.jwksUri
+	? jose.createRemoteJWKSet(new URL(config.auth.oauth2.jwksUri))
+	: undefined
+
 export async function auth(request: http.IncomingMessage): Promise<jose.JWTPayload> {
-	// Validte configuration
-	if (
-		!config.auth.oauth2.audience ||
-		!config.auth.oauth2.issuer_uri ||
-		!config.auth.oauth2.jwks_uri
-	) {
+	// Validate configuration
+	if (!config.auth.oauth2.audience || !config.auth.oauth2.issuerUri || !_jwks) {
 		throw new errors.AuthConfigurationError()
 	}
 
@@ -22,10 +22,9 @@ export async function auth(request: http.IncomingMessage): Promise<jose.JWTPaylo
 	if (!token) throw new errors.AuthTokenMissingError()
 
 	// Verify token
-	const jwks = jose.createRemoteJWKSet(new URL(config.auth.oauth2.jwks_uri))
 	try {
-		const { payload } = await jose.jwtVerify(token, jwks, {
-			issuer: config.auth.oauth2.issuer_uri,
+		const { payload } = await jose.jwtVerify(token, _jwks, {
+			issuer: config.auth.oauth2.issuerUri,
 			audience: config.auth.oauth2.audience,
 		})
 		return payload

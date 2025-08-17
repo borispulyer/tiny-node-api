@@ -1,7 +1,6 @@
 /*
  * Imports
  */
-import http from 'node:http'
 import path from 'node:path'
 import * as Parser from '@/parser'
 import * as Modifier from '@/modifier'
@@ -10,7 +9,7 @@ import * as errors from '@/errors'
 import { config } from '@config'
 import { logger } from '@/core'
 
-const _enpointsIndex = (() => {
+const _endpointsIndex = (() => {
 	const endpoints = []
 	logger.debug(`Registering ENDPOINTS:`)
 
@@ -54,19 +53,24 @@ const _enpointsIndex = (() => {
 
 export async function endpoints(
 	pathname: string,
-	server: { request?: http.IncomingMessage; response: http.ServerResponse; t0?: number },
-): Promise<boolean> {
-	// Check Responsibility
+): Promise<{ content: any; mime: string; file?: string } | undefined> {
+	// Check Responsibility - Step 1
+	// Check if filesystem is enabled in config
+	if (!config.server.locations.endpoints) return undefined
+
+	// Check Responsibility - Step 2
+	// Check if pathname matches an endpoint
 	const requested_endpoint = matchEndpoint(pathname)
-	if (!requested_endpoint) return false
+	if (!requested_endpoint) return undefined
 
 	const { endpoint, params } = requested_endpoint
+	const file = path.resolve(config.server.root, endpoint.file)
 
 	// Get style of output format
-	const style = endpoint.format ?? path.extname(endpoint.file).toLowerCase().replace(/^\./, '')
-
-	const file = path.resolve(config.server.root, endpoint.file)
-	logger.debug('Files', file, endpoint.file, config.server.root)
+	let style = endpoint.format ?? path.extname(endpoint.file).toLowerCase().replace(/^\./, '')
+	if (!Formatter.isFormatterRegistered(style)) {
+		style = config.formatter.default
+	}
 
 	// Parser
 	let data: any
@@ -92,8 +96,11 @@ export async function endpoints(
 	try {
 		data = await Modifier.modify(data, modifiers, path.dirname(file))
 	} catch (error: any) {
-		if (error instanceof Modifier.ModifierFilereadError) {
+		if (error instanceof Modifier.ModifierFileReadError) {
 			throw new errors.HttpError(`[${error.name}] ${error.message}`, 404)
+		}
+		if (error instanceof Modifier.ModifierFileAccesError) {
+			throw new errors.HttpError(`[${error.name}] ${error.message}`, 403)
 		}
 		if (error instanceof Modifier.ModifierSyntaxError) {
 			throw new errors.HttpError(`[${error.name}] ${error.message}`, 500)
@@ -115,23 +122,21 @@ export async function endpoints(
 		data = await Formatter.format(data, style)
 	} catch (error: any) {
 		if (error instanceof Formatter.FormatterMissingError) {
-			throw new errors.HttpError(`[${error.name}] ${error.message}`, 400)
+			throw new errors.HttpError(`[${error.name}] ${error.message}`, 406)
 		}
 		throw error
 	}
 
-	const t1 = performance.now()
-
 	// Send response
-	server.response.writeHead(200, { 'Content-Type': data.mime }).end(data.content)
-	logger.info(
-		`GET [endpoint "${endpoint.path}"] -> source="${path.relative(config.server.root, file)}" as $${server.t0 ? (t1 - server.t0).toFixed(2) : '-'} ms`,
-	)
-	return true
+	return {
+		content: data.content,
+		mime: data.mime,
+		file: file,
+	}
 }
 
 function matchEndpoint(pathname: string) {
-	for (const endpoint of _enpointsIndex) {
+	for (const endpoint of _endpointsIndex) {
 		if (endpoint.regex) {
 			const matches = endpoint.regex.exec(pathname)
 			if (matches) return { endpoint, params: matches.groups }
