@@ -8,7 +8,7 @@ import { config } from '@config'
  */
 type Header = {
 	status?: number
-	realm?: string
+	realm?: string | null
 	error?: 'invalid_request' | 'invalid_token' | 'insufficient_scope'
 	error_description?: string
 }

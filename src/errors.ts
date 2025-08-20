@@ -11,7 +11,7 @@ export class HttpError extends Error {
 	public headers: http.OutgoingHttpHeaders | http.OutgoingHttpHeader[] | undefined
 
 	public constructor(
-		message: string,
+		message?: string,
 		status?: number,
 		headers?: http.OutgoingHttpHeaders | http.OutgoingHttpHeader[],
 	) {
@@ -19,5 +19,15 @@ export class HttpError extends Error {
 		this.name = this.constructor.name
 		this.status = status
 		this.headers = headers
+	}
+}
+
+export class ConfigurationError extends Error {
+	public config: any
+
+	public constructor(message?: string, config?: any) {
+		super(message)
+		this.name = this.constructor.name
+		this.config = config
 	}
 }

@@ -6,12 +6,16 @@ import * as Parser from '@/parser'
 import * as Modifier from '@/modifier'
 import * as Formatter from '@/formatter'
 import * as errors from '@/errors'
-import { config } from '@config'
-import { files } from '@utils'
+import { config, logger, files } from '@/core'
 
 export async function filesystem(
 	pathname: string,
 ): Promise<{ content: any; mime: string; file?: string } | undefined> {
+	logger.trace(
+		{ module: 'location/filesystem', pathname },
+		`Checking resbonsibility for current request...`,
+	)
+
 	// Check Responsibility - Step 1
 	// Check if filesystem is enabled in config
 	if (!config.server.locations.filesystem) return undefined
@@ -26,6 +30,11 @@ export async function filesystem(
 	const source_file = await getSourceFile(requested_file)
 	if (!source_file) return undefined
 
+	logger.trace(
+		{ module: 'location/filesystem', source_file },
+		`Module is reponsible for current request. Handling request...`,
+	)
+
 	// Get style of output format
 	let style = path.extname(pathname).toLowerCase().replace(/^\./, '')
 	if (!Formatter.isFormatterRegistered(style)) {
@@ -37,14 +46,15 @@ export async function filesystem(
 	try {
 		data = await Parser.parse(source_file)
 	} catch (error: any) {
+		logger.debug({ module: 'location/filesystem', error })
 		if (error instanceof Parser.ParserMissingError) {
-			throw new errors.HttpError(`[${error.name}] ${error.message}`, 404)
+			throw new errors.HttpError(`${error.message}`, 500)
 		}
 		if (error instanceof Parser.ParserFilereadError) {
-			throw new errors.HttpError(`[${error.name}] ${error.message}`, 404)
+			throw new errors.HttpError(`File not found.`, 404)
 		}
 		if (error instanceof Parser.ParserSyntaxError) {
-			throw new errors.HttpError(`[${error.name}] ${error.message}`, 500)
+			throw new errors.HttpError(`Syntax error in file.`, 500)
 		}
 		throw error
 	}
@@ -56,14 +66,18 @@ export async function filesystem(
 	try {
 		data = await Modifier.modify(data, modifiers, path.dirname(source_file))
 	} catch (error: any) {
+		logger.debug({ module: 'location/filesystem', error })
+		if (error instanceof Modifier.ModifierMissingError) {
+			throw new errors.HttpError(`${error.message}`, 500)
+		}
 		if (error instanceof Modifier.ModifierFileReadError) {
-			throw new errors.HttpError(`[${error.name}] ${error.message}`, 404)
+			throw new errors.HttpError(`File not found.`, 404)
 		}
 		if (error instanceof Modifier.ModifierFileAccesError) {
-			throw new errors.HttpError(`[${error.name}] ${error.message}`, 403)
+			throw new errors.HttpError(`Forbidden.`, 403)
 		}
 		if (error instanceof Modifier.ModifierSyntaxError) {
-			throw new errors.HttpError(`[${error.name}] ${error.message}`, 500)
+			throw new errors.HttpError(`Syntax error in file.`, 500)
 		}
 		throw error
 	}
@@ -72,18 +86,21 @@ export async function filesystem(
 	try {
 		data = await Formatter.format(data, style)
 	} catch (error: any) {
+		logger.debug({ module: 'location/filesystem', error })
 		if (error instanceof Formatter.FormatterMissingError) {
-			throw new errors.HttpError(`[${error.name}] ${error.message}`, 406)
+			throw new errors.HttpError(`${error.message}`, 406)
 		}
 		throw error
 	}
 
 	// Send response
-	return {
+	const result = {
 		content: data.content,
 		mime: data.mime,
 		file: source_file,
 	}
+	logger.trace({ module: 'location/filesystem', result }, `Request successfully handled.`)
+	return result
 }
 
 async function getSourceFile(requested_file: string): Promise<string | null> {

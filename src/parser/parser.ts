@@ -12,7 +12,6 @@ import { logger } from '../core'
  */
 const _parsersIndex: Map<string, parsers.Parser> = (() => {
 	const map: Map<string, parsers.Parser> = new Map()
-	logger.debug(`Registering PARSERS:`)
 	for (const parser of Object.values(parsers)) {
 		for (const extension of parser.extensions) {
 			const ext = extension.toLowerCase()
@@ -21,7 +20,6 @@ const _parsersIndex: Map<string, parsers.Parser> = (() => {
 			}
 			map.set(ext, parser)
 		}
-		logger.debug(`  - ${parser.extensions.map((value) => `"${value}"`).join(', ')}`)
 	}
 	return map
 })()
@@ -32,19 +30,25 @@ const _parsersIndex: Map<string, parsers.Parser> = (() => {
  * @returns
  */
 export async function parse(file: string): Promise<any> {
+	logger.trace({ module: 'parser', file }, `Starting parser...`)
 	const file_extension = path.extname(file).toLowerCase().replace(/^\./, '')
 	const parser = _parsersIndex.get(file_extension)
 	if (!parser) {
-		throw new errors.ParserMissingError(`No parser for extension "${file_extension}" available`)
+		throw new errors.ParserMissingError(
+			`No parser for extension "${file_extension}" available.`,
+		)
 	}
 	try {
-		return await parser.fn(file)
+		const result = await parser.fn(file)
+		logger.trace({ module: 'parser', result }, `Parsing successful.`)
+		return result
 	} catch (error: any) {
+		logger.debug({ module: 'parser', error })
 		if (error instanceof SyntaxError || error instanceof yaml.YAMLParseError) {
-			throw new errors.ParserSyntaxError(`Syntax error in file "${file}"`)
+			throw new errors.ParserSyntaxError(`Syntax error in file "${file}".`)
 		}
 		if (error.code === 'ENOENT') {
-			throw new errors.ParserFilereadError(`File "${file}" not found`)
+			throw new errors.ParserFilereadError(`File "${file}" not found.`)
 		}
 		throw error
 	}
@@ -56,4 +60,15 @@ export function isParserRegistered(file: string): boolean {
 
 export function getSupportedExtensions(): string[] {
 	return [..._parsersIndex.keys()]
+}
+
+export function getModules(): { id: string; extensions: string[] }[] {
+	const result = []
+	for (const [key, value] of Object.entries(parsers)) {
+		result.push({
+			id: key,
+			extensions: value.extensions,
+		})
+	}
+	return result
 }

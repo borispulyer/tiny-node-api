@@ -11,6 +11,7 @@ export interface Config {
 			filesystem: boolean
 		}
 		timeouts: {
+			socket: number
 			keepAlive: number
 			headers: number
 			request: number
@@ -30,10 +31,10 @@ export interface Config {
 	auth: {
 		enable: boolean
 		oauth2: {
-			realm: string | undefined
-			issuerUri: string | undefined
-			jwksUri: string | undefined
-			audience: string | undefined
+			realm: string | null
+			issuerUri: string | null
+			jwksUri: string | null
+			audience: string | null
 		}
 	}
 	parser: {}
@@ -44,4 +45,50 @@ export interface Config {
 	formatter: {
 		default: string
 	}
+	logging: {
+		http: {
+			enable: boolean
+			level: LogLevel
+			stdout: {
+				enable: boolean
+				level: LogLevel
+			}
+			filesystem: {
+				enable: boolean
+				file: string | null
+				level: LogLevel
+				logrotation: {
+					size?: string
+					frequency?: string
+					limit?: number
+					extension?: string
+					dateFormat?: string
+					symlink?: boolean
+				}
+			}
+		}
+		app: {
+			enable: boolean
+			level: LogLevel
+			stdout: {
+				enable: boolean
+				level: LogLevel
+			}
+			filesystem: {
+				enable: boolean
+				file: string | null
+				level: LogLevel
+				logrotation: {
+					size?: string
+					frequency?: string
+					limit?: number
+					extension?: string
+					dateFormat?: string
+					symlink?: boolean
+				}
+			}
+		}
+	}
 }
+
+export type LogLevel = 'fatal' | 'error' | 'warn' | 'info' | 'debug' | 'trace'

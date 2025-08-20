@@ -1,3 +1,8 @@
+/*
+ * Imports
+ */
+import { configTypes } from '@/core'
+
 export function parseBool(value: unknown): boolean | undefined {
 	if (typeof value !== 'string') return undefined
 	const tmp = value.trim().toLowerCase()
@@ -20,5 +25,13 @@ export function parsePort(value: unknown): number | undefined {
 
 export function parseString(value: unknown): string | undefined {
 	if (typeof value === 'string') return value.trim()
+	return undefined
+}
+
+export function parseLogLevel(value: unknown): configTypes.LogLevel | undefined {
+	if (typeof value !== 'string') return undefined
+	const str = value.trim().toLocaleLowerCase()
+	if (['fatal', 'error', 'warn', 'info', 'debug', 'trace'].includes(str))
+		return str as configTypes.LogLevel
 	return undefined
 }

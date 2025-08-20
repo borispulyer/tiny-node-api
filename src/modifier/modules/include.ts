@@ -35,6 +35,7 @@ export default {
 					try {
 						return await _walk(await Parser.parse(file), path.dirname(file))
 					} catch (error: any) {
+						logger.debug(error)
 						if (error instanceof Parser.ParserError) {
 							return node
 						}

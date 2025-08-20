@@ -2,14 +2,15 @@
  * Imports
  */
 import path from 'node:path'
-import { Config } from '@config/config.types'
-import { defaults } from '@config/config.defaults'
-import { parsers, objects, types } from '@utils'
+import { configDefaults, configTypes } from '@config'
+import * as parsers from '@utils/parsers'
+import * as objects from '@utils/objects'
+import type * as types from '@utils/types'
 
 /**
  * Assign environment variables to config and merge with defaults
  */
-const env: types.DeepPartial<Config> = {
+const env: types.DeepPartial<configTypes.Config> = {
 	server: {
 		port: parsers.parsePort(process.env.SERVER_PORT),
 		root: parsers.parseString(process.env.SERVER_ROOT)
@@ -25,6 +26,7 @@ const env: types.DeepPartial<Config> = {
 			filesystem: parsers.parseBool(process.env.SERVER_LOCATIONS_FILESYSTEM),
 		},
 		timeouts: {
+			socket: parsers.parseNum(process.env.SERVER_TIMEOUTS_SOCKET),
 			keepAlive: parsers.parseNum(process.env.SERVER_TIMEOUTS_KEEPALIVE),
 			headers: parsers.parseNum(process.env.SERVER_TIMEOUTS_HEADERS),
 			request: parsers.parseNum(process.env.SERVER_TIMEOUTS_REQUEST),
@@ -53,6 +55,52 @@ const env: types.DeepPartial<Config> = {
 	formatter: {
 		default: parsers.parseString(process.env.FORMATTER_DEFAULT),
 	},
+	logging: {
+		http: {
+			enable: parsers.parseBool(process.env.LOGGING_HTTP_ENABLE),
+			level: parsers.parseLogLevel(process.env.LOGGING_HTTP_LEVEL),
+			stdout: {
+				enable: parsers.parseBool(process.env.LOGGING_HTTP_STDOUT_ENABLE),
+				level: parsers.parseLogLevel(process.env.LOGGING_HTTP_STDOUT_LEVEL),
+			},
+			filesystem: {
+				enable: parsers.parseBool(process.env.LOGGING_HTTP_FILE_ENABLE),
+				file: parsers.parseString(process.env.LOGGING_HTTP_FILE),
+				level: parsers.parseLogLevel(process.env.LOGGING_HTTP_FILE_LEVEL),
+				logrotation: {
+					size: parsers.parseString(process.env.LOGGING_HTTP_LOGROTATION_SIZE),
+					frequency: parsers.parseString(process.env.LOGGING_HTTP_LOGROTATION_FREQUENCY),
+					limit: parsers.parseNum(process.env.LOGGING_HTTP_LOGROTATION_LIMIT),
+					extension: parsers.parseString(process.env.LOGGING_HTTP_LOGROTATION_EXTENSION),
+					dateFormat: parsers.parseString(
+						process.env.LOGGING_HTTP_LOGROTATION_DATEFORMAT,
+					),
+					symlink: parsers.parseBool(process.env.LOGGING_HTTP_LOGROTATION_SYMLINK),
+				},
+			},
+		},
+		app: {
+			enable: parsers.parseBool(process.env.LOGGING_APP_ENABLE),
+			level: parsers.parseLogLevel(process.env.LOGGING_APP_LEVEL),
+			stdout: {
+				enable: parsers.parseBool(process.env.LOGGING_APP_STDOUT_ENABLE),
+				level: parsers.parseLogLevel(process.env.LOGGING_APP_STDOUT_LEVEL),
+			},
+			filesystem: {
+				enable: parsers.parseBool(process.env.LOGGING_APP_FILE_ENABLE),
+				file: parsers.parseString(process.env.LOGGING_APP_FILE),
+				level: parsers.parseLogLevel(process.env.LOGGING_APP_FILE_LEVEL),
+				logrotation: {
+					size: parsers.parseString(process.env.LOGGING_APP_LOGROTATION_SIZE),
+					frequency: parsers.parseString(process.env.LOGGING_APP_LOGROTATION_FREQUENCY),
+					limit: parsers.parseNum(process.env.LOGGING_APP_LOGROTATION_LIMIT),
+					extension: parsers.parseString(process.env.LOGGING_APP_LOGROTATION_EXTENSION),
+					dateFormat: parsers.parseString(process.env.LOGGING_APP_LOGROTATION_DATEFORMAT),
+					symlink: parsers.parseBool(process.env.LOGGING_APP_LOGROTATION_SYMLINK),
+				},
+			},
+		},
+	},
 }
 
-export const config = objects.assignSourceToTemplate(defaults, env) as Config
+export const config = objects.assignSourceToTemplate(configDefaults, env) as configTypes.Config

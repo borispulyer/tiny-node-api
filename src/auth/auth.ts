@@ -3,32 +3,42 @@
  */
 import http from 'node:http'
 import * as jose from 'jose'
-
 import * as errors from './errors'
-import { config } from '@config'
+import { config, logger } from '@/core'
 
-const _jwks = config.auth.oauth2.jwksUri
-	? jose.createRemoteJWKSet(new URL(config.auth.oauth2.jwksUri))
-	: undefined
+const { issuerUri, jwksUri, audience } = config.auth.oauth2
+
+const _jwks = jwksUri ? jose.createRemoteJWKSet(new URL(jwksUri)) : undefined
 
 export async function auth(request: http.IncomingMessage): Promise<jose.JWTPayload> {
+	// Logging
+	logger.trace({ request, module: 'auth' }, `Starting authentication....`)
+
 	// Validate configuration
-	if (!config.auth.oauth2.audience || !config.auth.oauth2.issuerUri || !_jwks) {
-		throw new errors.AuthConfigurationError()
+	if (!audience || !issuerUri || !_jwks) {
+		throw new errors.AuthConfigurationError(
+			`Authentication module is not properly configured: issuerUri, jwksUri and audience are mandatory.`,
+		)
 	}
 
 	// Get token
 	const token = getBearerToken(request)
+	logger.trace(
+		{ token: token ?? '<empty>', module: 'auth' },
+		`Extracted bearer token from header`,
+	)
 	if (!token) throw new errors.AuthTokenMissingError()
 
 	// Verify token
 	try {
 		const { payload } = await jose.jwtVerify(token, _jwks, {
-			issuer: config.auth.oauth2.issuerUri,
-			audience: config.auth.oauth2.audience,
+			issuer: issuerUri,
+			audience: audience,
 		})
+		logger.trace({ payload, module: 'auth' }, `Authentication successful.`)
 		return payload
 	} catch (error: any) {
+		logger.debug({ error, module: 'auth' })
 		if (error instanceof jose.errors.JWTExpired) {
 			throw new errors.AuthTokenExpiredError()
 		}

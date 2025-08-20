@@ -11,58 +11,85 @@ import fs from 'node:fs/promises'
 import { JWTPayload } from 'jose'
 
 // Internal Modules
-import { config } from '@config'
 import * as Auth from '@/auth'
 import * as locations from '@/locations'
 import * as errors from '@/errors'
-import { url } from '@utils'
-import { logger } from '@/core'
+import { config, url, logger, welcome } from '@/core'
+
+/*
+ * Global error handling
+ */
+process.on('unhandledRejection', (error) => {
+	logger.fatal({ module: 'main', error })
+	process.exit(1)
+})
+process.on('uncaughtException', (error) => {
+	logger.fatal({ module: 'main', error })
+	process.exit(1)
+})
 
 /**
  * Initialize HTTP server
  */
-const server = http.createServer(async (request, response) => {
-	try {
-		const t0 = performance.now()
+const server = http
+	.createServer(async (request, response) => {
+		logger.http(request, response)
+		try {
+			const t0 = performance.now()
 
-		// Validate Method
-		if (request.method !== 'GET')
-			throw new errors.HttpError('Method not allowed', 405, { Allow: 'GET' })
+			// Validate Method
+			if (request.method !== 'GET')
+				throw new errors.HttpError('Method not allowed', 405, { Allow: 'GET' })
 
-		const pathname = url.getPathname(request.url)
+			const pathname = url.getPathname(request.url)
 
-		// Handle locations before authentication
-		const location_preAuth = await locations.heartbeat(pathname)
-		if (location_preAuth) {
-			await createResponse(location_preAuth, { request, response })
-			return
+			// Handle locations before authentication
+			const location_preAuth = await locations.heartbeat(pathname)
+			if (location_preAuth) {
+				await createResponse(location_preAuth, { request, response })
+				return
+			}
+
+			// Handle Authentication
+			await handleAuthentication(request)
+
+			// Handle locations after authentication
+			const location_postAuth =
+				(await locations.endpoints(pathname)) ?? (await locations.filesystem(pathname))
+			if (location_postAuth) {
+				await createResponse(location_postAuth, { request, response })
+				return
+			}
+
+			// No location matched
+			throw new errors.HttpError('Not found', 404)
+		} catch (error: any) {
+			if (error instanceof errors.ConfigurationError) {
+				logger.error({ module: 'server', error })
+				response.writeHead(500).end(`Error 500 - Internal server error.`)
+				return
+			}
+			if (error instanceof errors.HttpError) {
+				logger.debug({ module: 'server', error })
+				const status_code = error.status ?? 500
+				response
+					.writeHead(status_code, error.headers)
+					.end(`Error ${status_code} - ${error.message}.`)
+				return
+			}
+			throw error
 		}
-
-		// Handle Authentication
-		await handleAuthentication(request)
-
-		// Handle locations after authentication
-		const location_postAuth =
-			(await locations.endpoints(pathname)) ?? (await locations.filesystem(pathname))
-		if (location_postAuth) {
-			await createResponse(location_postAuth, { request, response })
-			return
-		}
-
-		// No location matched
-		throw new errors.HttpError('Not found', 404)
-	} catch (error: any) {
-		logger.error(error)
-		if (error instanceof errors.HttpError) {
-			const status_code = error.status ?? 500
-			response
-				.writeHead(status_code, error.headers)
-				.end(`Error ${status_code} - ${error.message}`)
-			return
-		}
-		throw error
-	}
-})
+	})
+	.on('connection', (socket) => {
+		socket.setTimeout(config.server.timeouts.socket)
+		socket.on('timeout', () => {
+			logger.debug(
+				{ module: 'server', socket },
+				`Socket timeout after idle (${config.server.timeouts.socket} ms)`,
+			)
+			socket.destroy()
+		})
+	})
 
 /**
  * Configure HTTP server
@@ -72,19 +99,13 @@ server.headersTimeout = config.server.timeouts.headers
 server.requestTimeout = config.server.timeouts.request
 server.maxRequestsPerSocket = config.server.maxRequestsPerSocket
 
-server.on('connection', (socket) => {
-	socket.on('timeout', () => logger.warn('socket timeout (idle)'))
-})
-server.on('request', (req, res) => {
-	req.on('aborted', () => logger.warn('request aborted by client'))
-})
-
 /**
  * Start HTTP server
  */
 server.listen(config.server.port, () => {
-	logger.info(`Server started at http://localhost:${config.server.port}`)
-	logger.info('Config: ', config)
+	welcome.print()
+	logger.info({ module: 'server' }, `Server started at http://localhost:${config.server.port}`)
+	logger.trace({ module: 'server', config }, `Configuration`)
 })
 
 async function handleAuthentication(
@@ -93,16 +114,19 @@ async function handleAuthentication(
 	if (config.auth.enable) {
 		try {
 			const token = await Auth.auth(request)
+			// ;(request as any)._oauth2.sub = token?.sub
+			// ;(request as any)._oauth2.username = token?.preferred_username
+			// logger.debug(token, `Authentication successful`)
 			return token
 		} catch (error: any) {
+			logger.debug({ module: 'server', error })
+			if (error instanceof Auth.AuthConfigurationError) {
+				throw new errors.ConfigurationError(`${error.message}`, config.auth)
+			}
 			if (error instanceof Auth.AuthError) {
-				throw new errors.HttpError(
-					`[${error.name}] ${error.message}`,
-					error.header.status,
-					{
-						'WWW-Authenticate': error.getWWWAuthenticateHeader(),
-					},
-				)
+				throw new errors.HttpError(`Unauthorized`, error.header.status, {
+					'WWW-Authenticate': error.getWWWAuthenticateHeader(),
+				})
 			}
 			throw error
 		}
@@ -119,7 +143,7 @@ async function createResponse(
 	const { request, response } = server
 
 	const headers: Record<string, string> = {
-		'Content-Type': `${mime}; charset=utf-8`,
+		'Content-Type': `${mime}`,
 		'X-Content-Type-Options': 'nosniff',
 		'Cache-Control': 'no-cache',
 		Vary: 'Accept-Encoding',

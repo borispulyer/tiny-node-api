@@ -11,7 +11,8 @@
       "@config": ["./src/core/config"],
       "@config/*": ["./src/core/config/*"],
       "@utils": ["./src/core/utilities"],
-      "@utils/*": ["./src/core/utilities/*"]
+      "@utils/*": ["./src/core/utilities/*"],
+      "@logger": ["./src/core/logger"]
     },
     "module": "esnext",
     "moduleResolution": "bundler",

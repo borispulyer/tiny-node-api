@@ -11,16 +11,12 @@ import { logger } from '../core'
  */
 const _modifiersIndex: Map<string, modifiers.Modifier> = (() => {
 	const map: Map<string, modifiers.Modifier> = new Map()
-
-	logger.debug(`Registering MODIFIERS:`)
-
 	for (const modifier of Object.values(modifiers)) {
 		const sel = modifier.selector.toLowerCase()
 		if (map.has(sel)) {
 			throw new errors.ModifierError(`Duplicate modifier for selector "${sel}" detected.`)
 		}
 		map.set(sel, modifier)
-		logger.debug(`  - "${sel}"`)
 	}
 	return map
 })()
@@ -33,6 +29,7 @@ export async function modify(
 	selector: string | string[] | null,
 	base_dir: string,
 ): Promise<any> {
+	logger.trace({ module: 'modifier', data, selector, base_dir }, `Starting modifier...`)
 	const selectors = Array.isArray(selector) ? selector : [selector]
 	for (const selector of selectors) {
 		if (!selector) continue
@@ -42,13 +39,26 @@ export async function modify(
 		}
 		try {
 			data = await modifier.fn(data, { baseDir: base_dir })
+			logger.trace({ module: 'modifier', result: data }, `Modifier successful.`)
+			return data
 		} catch (error: any) {
+			logger.debug({ module: 'modifier', error })
 			throw error
 		}
 	}
-	return data
 }
 
 export function isModifierRegistered(selector: string): boolean {
 	return _modifiersIndex.has(selector.toLowerCase().trim())
+}
+
+export function getModules(): { id: string; selector: string }[] {
+	const result = []
+	for (const [key, value] of Object.entries(modifiers)) {
+		result.push({
+			id: key,
+			selector: value.selector,
+		})
+	}
+	return result
 }

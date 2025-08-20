@@ -2,22 +2,25 @@
  * Imports
  */
 import path from 'node:path'
-import { Config } from '@config/config.types'
-import { HttpError } from '@/errors'
+import { configTypes } from '@config'
+import { info } from 'node:console'
+
+const app_root: string = path.resolve(import.meta.dirname, '../../../')
 
 /**
  * Default configuration values
  */
-export const defaults: Config = {
+export const defaults: configTypes.Config = {
 	server: {
 		port: 3000,
-		root: path.resolve(import.meta.dirname, '../../../', 'public'),
+		root: path.resolve(app_root, 'public'),
 		locations: {
 			heartbeat: true,
 			endpoints: true,
 			filesystem: true,
 		},
 		timeouts: {
+			socket: 5_000,
 			keepAlive: 75_000,
 			headers: 80_000,
 			request: 60_000,
@@ -39,9 +42,9 @@ export const defaults: Config = {
 		enable: false,
 		oauth2: {
 			realm: 'Config API',
-			issuerUri: undefined,
-			jwksUri: undefined,
-			audience: undefined,
+			issuerUri: null,
+			jwksUri: null,
+			audience: null,
 		},
 	},
 	parser: {},
@@ -53,5 +56,47 @@ export const defaults: Config = {
 	},
 	formatter: {
 		default: 'json',
+	},
+	logging: {
+		http: {
+			enable: true,
+			level: 'info',
+			stdout: {
+				enable: false,
+				level: 'info',
+			},
+			filesystem: {
+				enable: true,
+				file: path.resolve(app_root, 'logs/access'),
+				level: 'info',
+				logrotation: {
+					size: '10M',
+					frequency: 'daily',
+					limit: 180,
+					extension: 'log',
+					dateFormat: 'yyyy-MM-dd',
+				},
+			},
+		},
+		app: {
+			enable: true,
+			level: 'info',
+			stdout: {
+				enable: true,
+				level: 'warn',
+			},
+			filesystem: {
+				enable: true,
+				file: path.resolve(app_root, 'logs/app'),
+				level: 'info',
+				logrotation: {
+					size: '10M',
+					frequency: 'daily',
+					limit: 180,
+					extension: 'log',
+					dateFormat: 'yyyy-MM-dd',
+				},
+			},
+		},
 	},
 }

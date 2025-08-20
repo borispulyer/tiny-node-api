@@ -11,7 +11,6 @@ import { logger } from '@/core'
 
 const _endpointsIndex = (() => {
 	const endpoints = []
-	logger.debug(`Registering ENDPOINTS:`)
 
 	for (const endpoint of config.endpoints) {
 		// Skip disabled endpoints
@@ -45,15 +44,18 @@ const _endpointsIndex = (() => {
 				params: params,
 			})
 		}
-		logger.debug(`  - "${endpoint.path}"`)
 	}
-	if (endpoints.length == 0) logger.debug(`  <none>`)
 	return endpoints
 })()
 
 export async function endpoints(
 	pathname: string,
 ): Promise<{ content: any; mime: string; file?: string } | undefined> {
+	logger.trace(
+		{ module: 'location/endpoints', pathname },
+		`Checking resbonsibility for current request...`,
+	)
+
 	// Check Responsibility - Step 1
 	// Check if filesystem is enabled in config
 	if (!config.server.locations.endpoints) return undefined
@@ -62,6 +64,11 @@ export async function endpoints(
 	// Check if pathname matches an endpoint
 	const requested_endpoint = matchEndpoint(pathname)
 	if (!requested_endpoint) return undefined
+
+	logger.trace(
+		{ module: 'location/endpoints', requested_endpoint },
+		`Module is reponsible for current request. Handling request...`,
+	)
 
 	const { endpoint, params } = requested_endpoint
 	const file = path.resolve(config.server.root, endpoint.file)
@@ -77,6 +84,7 @@ export async function endpoints(
 	try {
 		data = await Parser.parse(file)
 	} catch (error: any) {
+		logger.debug({ module: 'location/endpoints', error })
 		if (error instanceof Parser.ParserMissingError) {
 			throw new errors.HttpError(`[${error.name}] ${error.message}`, 404)
 		}
@@ -96,6 +104,7 @@ export async function endpoints(
 	try {
 		data = await Modifier.modify(data, modifiers, path.dirname(file))
 	} catch (error: any) {
+		logger.debug({ module: 'location/endpoints', error })
 		if (error instanceof Modifier.ModifierFileReadError) {
 			throw new errors.HttpError(`[${error.name}] ${error.message}`, 404)
 		}
@@ -113,6 +122,7 @@ export async function endpoints(
 		try {
 			data = await endpoint.filter(data, params)
 		} catch (error: any) {
+			logger.debug({ module: 'location/endpoints', error })
 			throw new errors.HttpError(`Endpoint filter failed: ${error.message}`, 500)
 		}
 	}
@@ -121,6 +131,7 @@ export async function endpoints(
 	try {
 		data = await Formatter.format(data, style)
 	} catch (error: any) {
+		logger.debug({ module: 'location/endpoints', error })
 		if (error instanceof Formatter.FormatterMissingError) {
 			throw new errors.HttpError(`[${error.name}] ${error.message}`, 406)
 		}
@@ -128,11 +139,13 @@ export async function endpoints(
 	}
 
 	// Send response
-	return {
+	const result = {
 		content: data.content,
 		mime: data.mime,
 		file: file,
 	}
+	logger.trace({ module: 'location/endpoints', result }, `Request successfully handled.`)
+	return result
 }
 
 function matchEndpoint(pathname: string) {

@@ -1,4 +1,4 @@
-/**
+/*
  * Utilities
  */
 export * as objects from './objects'
