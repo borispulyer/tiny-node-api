@@ -9,7 +9,7 @@ import { logger } from '../core'
 /*
  * Definitions
  */
-const _formattersIndex: Map<string, formatters.Formatter> = (() => {
+const _indexFormatters: Map<string, formatters.Formatter> = (() => {
 	const map: Map<string, formatters.Formatter> = new Map()
 	for (const formatter of Object.values(formatters)) {
 		for (const selector of formatter.selectors) {
@@ -39,7 +39,7 @@ export async function format(
 	content: string
 }> {
 	logger.trace({ module: 'formatter', data, selector }, `Starting formatter...`)
-	const formatter = _formattersIndex.get(selector.toLowerCase().trim())
+	const formatter = _indexFormatters.get(selector.toLowerCase().trim())
 	if (!formatter) {
 		throw new errors.FormatterMissingError(`No formatter for '${selector}' available.`)
 	}
@@ -54,7 +54,7 @@ export async function format(
 }
 
 export function isFormatterRegistered(selector: string): boolean {
-	return _formattersIndex.has(selector.toLowerCase().trim())
+	return _indexFormatters.has(selector.toLowerCase().trim())
 }
 
 export function getModules(): { id: string; selectors: string[]; mime: string }[] {

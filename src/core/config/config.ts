@@ -2,10 +2,7 @@
  * Imports
  */
 import path from 'node:path'
-import { configDefaults, configTypes } from '@config'
-import * as parsers from '@utils/parsers'
-import * as objects from '@utils/objects'
-import type * as types from '@utils/types'
+import { configDefaults, configTypes, parsers, objects, types } from '@/core'
 
 /**
  * Assign environment variables to config and merge with defaults
@@ -13,13 +10,22 @@ import type * as types from '@utils/types'
 const env: types.DeepPartial<configTypes.Config> = {
 	server: {
 		port: parsers.parsePort(process.env.SERVER_PORT),
-		root: parsers.parseString(process.env.SERVER_ROOT)
-			? path.resolve(
-					import.meta.dirname,
-					'..',
-					parsers.parseString(process.env.SERVER_ROOT) as string,
-				)
-			: undefined,
+		path: {
+			public: parsers.parseString(process.env.SERVER_PATH_PUBLIC)
+				? path.resolve(
+						import.meta.dirname,
+						'..',
+						parsers.parseString(process.env.SERVER_PATH_PUBLIC) as string,
+					)
+				: undefined,
+			filter: parsers.parseString(process.env.SERVER_PATH_FILTER)
+				? path.resolve(
+						import.meta.dirname,
+						'..',
+						parsers.parseString(process.env.SERVER_PATH_FILTER) as string,
+					)
+				: undefined,
+		},
 		locations: {
 			heartbeat: parsers.parseBool(process.env.SERVER_LOCATIONS_HEARTBEAT),
 			endpoints: parsers.parseBool(process.env.SERVER_LOCATIONS_ENDPOINTS),
@@ -58,7 +64,6 @@ const env: types.DeepPartial<configTypes.Config> = {
 	logging: {
 		http: {
 			enable: parsers.parseBool(process.env.LOGGING_HTTP_ENABLE),
-			level: parsers.parseLogLevel(process.env.LOGGING_HTTP_LEVEL),
 			stdout: {
 				enable: parsers.parseBool(process.env.LOGGING_HTTP_STDOUT_ENABLE),
 				level: parsers.parseLogLevel(process.env.LOGGING_HTTP_STDOUT_LEVEL),
@@ -81,7 +86,6 @@ const env: types.DeepPartial<configTypes.Config> = {
 		},
 		app: {
 			enable: parsers.parseBool(process.env.LOGGING_APP_ENABLE),
-			level: parsers.parseLogLevel(process.env.LOGGING_APP_LEVEL),
 			stdout: {
 				enable: parsers.parseBool(process.env.LOGGING_APP_STDOUT_ENABLE),
 				level: parsers.parseLogLevel(process.env.LOGGING_APP_STDOUT_LEVEL),

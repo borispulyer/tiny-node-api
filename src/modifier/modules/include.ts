@@ -4,8 +4,7 @@
 import path from 'node:path'
 import * as errors from '../errors'
 import * as Parser from '@/parser'
-import { logger } from '@/core'
-import { files } from '@utils'
+import { logger, files } from '@/core'
 import type { Modifier } from '.'
 
 export default {

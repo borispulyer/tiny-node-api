@@ -22,7 +22,7 @@ export async function filesystem(
 
 	// Check Responsibility - Step 2
 	// Get absolut path of requested file and check if file is within the root directory of the server
-	const requested_file = path.resolve(config.server.root, pathname.replace(/^\/+/, ''))
+	const requested_file = path.resolve(config.server.path.public, pathname.replace(/^\/+/, ''))
 	if (!files.isFileWithinRoot(requested_file)) return undefined
 
 	// Check Responsibility - Step 3
@@ -51,10 +51,10 @@ export async function filesystem(
 			throw new errors.HttpError(`${error.message}`, 500)
 		}
 		if (error instanceof Parser.ParserFilereadError) {
-			throw new errors.HttpError(`File not found.`, 404)
+			throw new errors.HttpError(`File not found`, 404)
 		}
 		if (error instanceof Parser.ParserSyntaxError) {
-			throw new errors.HttpError(`Syntax error in file.`, 500)
+			throw new errors.HttpError(`Syntax error in file`, 500)
 		}
 		throw error
 	}
@@ -71,13 +71,13 @@ export async function filesystem(
 			throw new errors.HttpError(`${error.message}`, 500)
 		}
 		if (error instanceof Modifier.ModifierFileReadError) {
-			throw new errors.HttpError(`File not found.`, 404)
+			throw new errors.HttpError(`File not found`, 404)
 		}
 		if (error instanceof Modifier.ModifierFileAccesError) {
-			throw new errors.HttpError(`Forbidden.`, 403)
+			throw new errors.HttpError(`Forbidden`, 403)
 		}
 		if (error instanceof Modifier.ModifierSyntaxError) {
-			throw new errors.HttpError(`Syntax error in file.`, 500)
+			throw new errors.HttpError(`Syntax error in file`, 500)
 		}
 		throw error
 	}

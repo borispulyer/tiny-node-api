@@ -4,7 +4,10 @@
 export interface Config {
 	server: {
 		port: number
-		root: string
+		path: {
+			public: string
+			filter: string
+		}
 		locations: {
 			heartbeat: boolean
 			endpoints: boolean
@@ -26,7 +29,7 @@ export interface Config {
 		path: string
 		file: string
 		format?: string
-		filter?: (data: any, params?: Record<string, string>) => any
+		filter?: string
 	}[]
 	auth: {
 		enable: boolean
@@ -48,7 +51,6 @@ export interface Config {
 	logging: {
 		http: {
 			enable: boolean
-			level: LogLevel
 			stdout: {
 				enable: boolean
 				level: LogLevel
@@ -69,7 +71,6 @@ export interface Config {
 		}
 		app: {
 			enable: boolean
-			level: LogLevel
 			stdout: {
 				enable: boolean
 				level: LogLevel
@@ -91,4 +92,4 @@ export interface Config {
 	}
 }
 
-export type LogLevel = 'fatal' | 'error' | 'warn' | 'info' | 'debug' | 'trace'
+export type LogLevel = 'silent' | 'fatal' | 'error' | 'warn' | 'info' | 'debug' | 'trace'

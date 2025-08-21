@@ -2,8 +2,7 @@
  * Imports
  */
 import path from 'node:path'
-import { configTypes } from '@config'
-import { info } from 'node:console'
+import { configTypes } from '@/core'
 
 const app_root: string = path.resolve(import.meta.dirname, '../../../')
 
@@ -13,7 +12,10 @@ const app_root: string = path.resolve(import.meta.dirname, '../../../')
 export const defaults: configTypes.Config = {
 	server: {
 		port: 3000,
-		root: path.resolve(app_root, 'public'),
+		path: {
+			public: path.resolve(app_root, 'public'),
+			filter: path.resolve(app_root, 'filter'),
+		},
 		locations: {
 			heartbeat: true,
 			endpoints: true,
@@ -33,9 +35,10 @@ export const defaults: configTypes.Config = {
 	endpoints: [
 		{
 			enable: true,
-			path: '/api/v1/test',
+			path: '/api/v1/test/{id}',
 			file: './dummy.yaml',
 			format: 'json',
+			filter: './test.js',
 		},
 	],
 	auth: {
@@ -60,7 +63,6 @@ export const defaults: configTypes.Config = {
 	logging: {
 		http: {
 			enable: true,
-			level: 'info',
 			stdout: {
 				enable: false,
 				level: 'info',
@@ -80,7 +82,6 @@ export const defaults: configTypes.Config = {
 		},
 		app: {
 			enable: true,
-			level: 'info',
 			stdout: {
 				enable: true,
 				level: 'warn',

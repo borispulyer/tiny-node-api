@@ -6,34 +6,29 @@ import fs from 'node:fs/promises'
 import * as errors from '@/errors'
 import { config, logger } from '@/core'
 
-const { root } = config.server
-
-const _rootRealpath: Promise<string> = (async () => {
-	const root_absolute = path.resolve(root)
-
-	const fsStats = await fs.stat(root_absolute).catch(() => null)
-	if (!fsStats?.isDirectory()) {
-		throw new errors.ConfigurationError(
-			'Server misconfigured: config.server.root must be a directory.',
-			config.server,
-		)
-	}
-
+const _rootPublicRealpath: Promise<string> = (async () => {
 	try {
+		const root_absolute = path.resolve(config.server.path.public)
+		const fsStats = await fs.stat(root_absolute).catch(() => null)
+		if (!fsStats?.isDirectory()) {
+			throw new errors.ConfigurationError(
+				'Server misconfigured: config.server.path.public must be a directory.',
+				config.server,
+			)
+		}
 		const root_realpath = await fs.realpath(root_absolute)
 		return root_realpath
 	} catch (error: any) {
 		logger.debug({ module: 'utils/files', error })
-		throw new errors.ConfigurationError(`Server misconfigured: ${error}`, config.server)
+		throw error
 	}
 })()
 
 export async function isFileWithinRoot(file: string): Promise<boolean> {
-	if (!file || file.includes('\0')) return false
-
 	try {
+		if (!file || file.includes('\0') || !path.isAbsolute(file)) return false
 		const file_realpath = await fs.realpath(path.resolve(file))
-		const relative = path.relative(await _rootRealpath, file_realpath)
+		const relative = path.relative(await _rootPublicRealpath, file_realpath)
 		if (
 			relative === '' ||
 			(relative !== '..' &&

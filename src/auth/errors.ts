@@ -1,7 +1,7 @@
 /*
  * Imports
  */
-import { config } from '@config'
+import { config } from '@/core'
 
 /*
  * Type Definitions

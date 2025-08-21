@@ -9,7 +9,7 @@ import { logger } from '../core'
 /*
  * Definitions
  */
-const _modifiersIndex: Map<string, modifiers.Modifier> = (() => {
+const _indexModifiers: Map<string, modifiers.Modifier> = (() => {
 	const map: Map<string, modifiers.Modifier> = new Map()
 	for (const modifier of Object.values(modifiers)) {
 		const sel = modifier.selector.toLowerCase()
@@ -33,7 +33,7 @@ export async function modify(
 	const selectors = Array.isArray(selector) ? selector : [selector]
 	for (const selector of selectors) {
 		if (!selector) continue
-		const modifier = _modifiersIndex.get(selector.toLowerCase().trim())
+		const modifier = _indexModifiers.get(selector.toLowerCase().trim())
 		if (!modifier) {
 			throw new errors.ModifierMissingError(`No modifier for '${selector}' available.`)
 		}
@@ -49,7 +49,7 @@ export async function modify(
 }
 
 export function isModifierRegistered(selector: string): boolean {
-	return _modifiersIndex.has(selector.toLowerCase().trim())
+	return _indexModifiers.has(selector.toLowerCase().trim())
 }
 
 export function getModules(): { id: string; selector: string }[] {

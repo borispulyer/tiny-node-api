@@ -15,7 +15,7 @@ export function print() {
 	const formatters = Formatter.getModules()
 	
 	// Start
-	console.clear()
+	// console.clear()
 	console.log(line)
 	console.log(` 🚀  Starting ${pkg.name}`)
 	console.log(`     v${pkg.version}`)
@@ -25,7 +25,9 @@ export function print() {
 	// Server
 	console.log(` 🌐  Server`)
 	console.log(`      • Port:                 ${config.server.port}`)
-	console.log(`      • Root Directory:       ${config.server.root}`)
+	console.log(`      • Directories:`)
+	console.log(`         - Public:            ${parseString(config.server.path.public)}`)
+	console.log(`         - Filter:            ${parseString(config.server.path.filter)}`)
 	console.log(`      • Timeouts:`)
 	console.log(`         - Socket:            ${config.server.timeouts.socket.toLocaleString()} ms`)
 	console.log(`         - KeepAlive:         ${config.server.timeouts.keepAlive.toLocaleString()} ms`)
@@ -59,7 +61,7 @@ export function print() {
 	// Filesystem
 	if (config.server.locations.filesystem) {
 		console.log(` 📁  Filesystem`)
-		console.log(`      • ${config.server.locations.filesystem ? '✅' : '❌'}  /             →  ${config.server.root}`)
+		console.log(`      • ${config.server.locations.filesystem ? '✅' : '❌'}  /             →  ${config.server.path.public}`)
 		console.log()
 	}
 
@@ -123,7 +125,7 @@ export function print() {
 	// Logging
 	console.log(` 📝  Logging`)
 	console.log(`     • HTTP access:`)
-	console.log(`         - Enabled:           ${parseBool(config.logging.http.enable)} ${config.logging.http.level.toUpperCase()}`)
+	console.log(`         - Enabled:           ${parseBool2Enabled(config.logging.http.enable)}`)
 	console.log(`         - Log to stdout:     ${parseBool(config.logging.http.stdout.enable)} ${parseString(config.logging.http.stdout.level.toUpperCase())}`)
 	console.log(`         - Log to file:       ${parseBool(config.logging.http.filesystem.enable)} ${parseString(config.logging.http.filesystem.level.toUpperCase())}`)
 	console.log(`         - File:              ${parseString(config.logging.http.filesystem.file)}`)
@@ -134,7 +136,7 @@ export function print() {
 	console.log(`         - File dateformat:   ${parseString(config.logging.http.filesystem.logrotation.dateFormat)}`)
 	console.log(`         - Create symlink:    ${parseBool2Enabled(config.logging.http.filesystem.logrotation.symlink)}`)
 	console.log(`     • App:`)
-	console.log(`         - Enabled:           ${parseBool(config.logging.app.enable)} ${config.logging.app.level.toUpperCase()}`)
+	console.log(`         - Enabled:           ${parseBool2Enabled(config.logging.app.enable)}`)
 	console.log(`         - Log to stdout:     ${parseBool(config.logging.app.stdout.enable)} ${parseString(config.logging.app.stdout.level.toUpperCase())}`)
 	console.log(`         - Log to file:       ${parseBool(config.logging.app.filesystem.enable)} ${parseString(config.logging.app.filesystem.level.toUpperCase())}`)
 	console.log(`         - File:              ${parseString(config.logging.app.filesystem.file)}`)

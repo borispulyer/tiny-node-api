@@ -6,10 +6,9 @@ import * as Parser from '@/parser'
 import * as Modifier from '@/modifier'
 import * as Formatter from '@/formatter'
 import * as errors from '@/errors'
-import { config } from '@config'
-import { logger } from '@/core'
+import { config, logger, imports } from '@/core'
 
-const _endpointsIndex = (() => {
+const _indexEndpoints = (() => {
 	const endpoints = []
 
 	for (const endpoint of config.endpoints) {
@@ -71,7 +70,7 @@ export async function endpoints(
 	)
 
 	const { endpoint, params } = requested_endpoint
-	const file = path.resolve(config.server.root, endpoint.file)
+	const file = path.resolve(config.server.path.public, endpoint.file)
 
 	// Get style of output format
 	let style = endpoint.format ?? path.extname(endpoint.file).toLowerCase().replace(/^\./, '')
@@ -86,13 +85,13 @@ export async function endpoints(
 	} catch (error: any) {
 		logger.debug({ module: 'location/endpoints', error })
 		if (error instanceof Parser.ParserMissingError) {
-			throw new errors.HttpError(`[${error.name}] ${error.message}`, 404)
+			throw new errors.HttpError(`${error.message}`, 404)
 		}
 		if (error instanceof Parser.ParserFilereadError) {
-			throw new errors.HttpError(`[${error.name}] ${error.message}`, 404)
+			throw new errors.HttpError(`File not found`, 404)
 		}
 		if (error instanceof Parser.ParserSyntaxError) {
-			throw new errors.HttpError(`[${error.name}] ${error.message}`, 500)
+			throw new errors.HttpError(`Syntax error in file`, 500)
 		}
 		throw error
 	}
@@ -105,25 +104,37 @@ export async function endpoints(
 		data = await Modifier.modify(data, modifiers, path.dirname(file))
 	} catch (error: any) {
 		logger.debug({ module: 'location/endpoints', error })
+		if (error instanceof Modifier.ModifierMissingError) {
+			throw new errors.HttpError(`${error.message}`, 500)
+		}
 		if (error instanceof Modifier.ModifierFileReadError) {
-			throw new errors.HttpError(`[${error.name}] ${error.message}`, 404)
+			throw new errors.HttpError(`File not found`, 404)
 		}
 		if (error instanceof Modifier.ModifierFileAccesError) {
-			throw new errors.HttpError(`[${error.name}] ${error.message}`, 403)
+			throw new errors.HttpError(`Forbidden`, 403)
 		}
 		if (error instanceof Modifier.ModifierSyntaxError) {
-			throw new errors.HttpError(`[${error.name}] ${error.message}`, 500)
+			throw new errors.HttpError(`Syntax error in file`, 500)
 		}
 		throw error
 	}
 
 	// Filter
-	if (typeof endpoint.filter === 'function') {
+	if (endpoint.filter) {
+		logger.trace(
+			{ module: 'location/endpoints', filter: endpoint.filter },
+			`Starting filter...`,
+		)
 		try {
-			data = await endpoint.filter(data, params)
+			const filter_file = path.resolve(config.server.path.filter, endpoint.filter)
+			const fn = await imports.getFilterFn(filter_file)
+			if (fn) {
+				data = await fn(data, params)
+				logger.trace({ module: 'location/endpoints', result: data }, `Filter successful.`)
+			}
 		} catch (error: any) {
 			logger.debug({ module: 'location/endpoints', error })
-			throw new errors.HttpError(`Endpoint filter failed: ${error.message}`, 500)
+			throw new errors.HttpError(`Endpoint filter failed`, 500)
 		}
 	}
 
@@ -133,7 +144,7 @@ export async function endpoints(
 	} catch (error: any) {
 		logger.debug({ module: 'location/endpoints', error })
 		if (error instanceof Formatter.FormatterMissingError) {
-			throw new errors.HttpError(`[${error.name}] ${error.message}`, 406)
+			throw new errors.HttpError(`${error.message}`, 406)
 		}
 		throw error
 	}
@@ -149,7 +160,7 @@ export async function endpoints(
 }
 
 function matchEndpoint(pathname: string) {
-	for (const endpoint of _endpointsIndex) {
+	for (const endpoint of _indexEndpoints) {
 		if (endpoint.regex) {
 			const matches = endpoint.regex.exec(pathname)
 			if (matches) return { endpoint, params: matches.groups }

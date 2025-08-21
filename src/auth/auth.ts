@@ -11,26 +11,26 @@ const { issuerUri, jwksUri, audience } = config.auth.oauth2
 const _jwks = jwksUri ? jose.createRemoteJWKSet(new URL(jwksUri)) : undefined
 
 export async function auth(request: http.IncomingMessage): Promise<jose.JWTPayload> {
-	// Logging
-	logger.trace({ request, module: 'auth' }, `Starting authentication....`)
-
-	// Validate configuration
-	if (!audience || !issuerUri || !_jwks) {
-		throw new errors.AuthConfigurationError(
-			`Authentication module is not properly configured: issuerUri, jwksUri and audience are mandatory.`,
-		)
-	}
-
-	// Get token
-	const token = getBearerToken(request)
-	logger.trace(
-		{ token: token ?? '<empty>', module: 'auth' },
-		`Extracted bearer token from header`,
-	)
-	if (!token) throw new errors.AuthTokenMissingError()
-
-	// Verify token
 	try {
+		// Logging
+		logger.trace({ request, module: 'auth' }, `Starting authentication....`)
+
+		// Validate configuration
+		if (!audience || !issuerUri || !_jwks) {
+			throw new errors.AuthConfigurationError(
+				`Authentication module is not properly configured: issuerUri, jwksUri and audience are mandatory.`,
+			)
+		}
+
+		// Get token
+		const token = getBearerToken(request)
+		logger.trace(
+			{ token: token ?? '<empty>', module: 'auth' },
+			`Extracted bearer token from header`,
+		)
+		if (!token) throw new errors.AuthTokenMissingError()
+
+		// Verify token
 		const { payload } = await jose.jwtVerify(token, _jwks, {
 			issuer: issuerUri,
 			audience: audience,
@@ -44,6 +44,9 @@ export async function auth(request: http.IncomingMessage): Promise<jose.JWTPaylo
 		}
 		if (error instanceof jose.errors.JWTClaimValidationFailed) {
 			throw new errors.AuthClaimValidationError(`Validation of claim "${error.claim}" failed`)
+		}
+		if (error instanceof errors.AuthError) {
+			throw error
 		}
 		throw new errors.AuthTokenInvalidError()
 	}

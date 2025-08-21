@@ -3,11 +3,11 @@
  */
 import pino from 'pino'
 import pinoHttp from 'pino-http'
-import { config } from '@/core'
+import { config, configTypes } from '@/core'
 
 const loggerApp = pino({
 	enabled: config.logging.app.enable,
-	level: config.logging.app.level,
+	level: getMinLogLevel(config.logging.app.stdout.level, config.logging.app.filesystem.level),
 	base: undefined,
 	timestamp: pino.stdTimeFunctions.isoTime,
 	errorKey: 'error',
@@ -16,7 +16,7 @@ const loggerApp = pino({
 
 const loggerHttp = pinoHttp({
 	enabled: config.logging.http.enable,
-	level: config.logging.http.level,
+	level: getMinLogLevel(config.logging.http.stdout.level, config.logging.http.filesystem.level),
 	base: undefined,
 	timestamp: pino.stdTimeFunctions.isoTime,
 	genReqId: (request, response) => {
@@ -35,6 +35,23 @@ const loggerHttp = pinoHttp({
 	},
 	transport: getLoggerTransport(config.logging.http),
 })
+
+function getMinLogLevel(...levels: configTypes.LogLevel[]) {
+	let index = Infinity
+	const logLevels: configTypes.LogLevel[] = [
+		'trace',
+		'debug',
+		'info',
+		'warn',
+		'error',
+		'fatal',
+		'silent',
+	]
+	for (const level of levels) {
+		index = Math.min(logLevels.indexOf(level), index)
+	}
+	return logLevels[index]
+}
 
 function getLoggerTransport(conf: (typeof config.logging)[keyof typeof config.logging]) {
 	const targets = []
