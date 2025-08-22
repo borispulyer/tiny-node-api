@@ -1,37 +1,17 @@
 /*
  * Imports
  */
-
-// Development Dependencies
 import 'dotenv/config'
-
-// Dependencies
 import http from 'node:http'
 import fs from 'node:fs/promises'
-import { JWTPayload } from 'jose'
-
-// Internal Modules
-import * as Auth from '@/auth'
-import * as locations from '@/locations'
+import * as modules from './modules'
 import * as errors from '@/errors'
-import { config, url, logger, welcome } from '@/core'
-
-/*
- * Global error handling
- */
-process.on('unhandledRejection', (error) => {
-	logger.fatal({ module: 'main', error })
-	process.exit(1)
-})
-process.on('uncaughtException', (error) => {
-	logger.fatal({ module: 'main', error })
-	process.exit(1)
-})
+import { config, url, logger } from '@/core'
 
 /**
  * Initialize HTTP server
  */
-const server = http
+export const server = http
 	.createServer(async (request, response) => {
 		logger.http(request, response)
 		try {
@@ -41,21 +21,22 @@ const server = http
 			if (request.method !== 'GET')
 				throw new errors.HttpError('Method not allowed', 405, { Allow: 'GET' })
 
+			// Get requested pathname
 			const pathname = url.getPathname(request.url)
 
 			// Handle locations before authentication
-			const location_preAuth = await locations.heartbeat(pathname)
+			const location_preAuth = await modules.heartbeat(pathname)
 			if (location_preAuth) {
 				await createResponse(location_preAuth, { request, response })
 				return
 			}
 
 			// Handle Authentication
-			await handleAuthentication(request)
+			await modules.auth(request)
 
 			// Handle locations after authentication
 			const location_postAuth =
-				(await locations.endpoints(pathname)) ?? (await locations.filesystem(pathname))
+				(await modules.endpoints(pathname)) ?? (await modules.filesystem(pathname))
 			if (location_postAuth) {
 				await createResponse(location_postAuth, { request, response })
 				return
@@ -77,6 +58,7 @@ const server = http
 					.end(`Error ${status_code} - ${error.message}.`)
 				return
 			}
+			logger.debug({ module: 'server', error })
 			throw error
 		}
 	})
@@ -99,41 +81,6 @@ server.headersTimeout = config.server.timeouts.headers
 server.requestTimeout = config.server.timeouts.request
 server.maxRequestsPerSocket = config.server.maxRequestsPerSocket
 
-/**
- * Start HTTP server
- */
-server.listen(config.server.port, () => {
-	welcome.print()
-	logger.info({ module: 'server' }, `Server started at http://localhost:${config.server.port}`)
-	logger.trace({ module: 'server', config }, `Configuration`)
-})
-
-async function handleAuthentication(
-	request: http.IncomingMessage,
-): Promise<JWTPayload | undefined> {
-	if (config.auth.enable) {
-		try {
-			const token = await Auth.auth(request)
-			// ;(request as any)._oauth2.sub = token?.sub
-			// ;(request as any)._oauth2.username = token?.preferred_username
-			// logger.debug(token, `Authentication successful`)
-			return token
-		} catch (error: any) {
-			logger.debug({ module: 'server', error })
-			if (error instanceof Auth.AuthConfigurationError) {
-				throw new errors.ConfigurationError(`${error.message}`, config.auth)
-			}
-			if (error instanceof Auth.AuthError) {
-				throw new errors.HttpError(`Unauthorized`, error.header.status, {
-					'WWW-Authenticate': error.getWWWAuthenticateHeader(),
-				})
-			}
-			throw error
-		}
-	}
-	return undefined
-}
-
 async function createResponse(
 	payload: { content: any; mime: string; file?: string } | undefined,
 	server: { request: http.IncomingMessage; response: http.ServerResponse },
@@ -145,7 +92,7 @@ async function createResponse(
 	const headers: Record<string, string> = {
 		'Content-Type': `${mime}`,
 		'X-Content-Type-Options': 'nosniff',
-		'Cache-Control': 'no-cache',
+		'Cache-Control': 'stale-while-revalidate=300, stale-if-error=3600',
 		Vary: 'Accept-Encoding',
 	}
 

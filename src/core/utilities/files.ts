@@ -6,16 +6,11 @@ import fs from 'node:fs/promises'
 import * as errors from '@/errors'
 import { config, logger } from '@/core'
 
-const _rootPublicRealpath: Promise<string> = (async () => {
+const _rootPublicRealpath: Promise<string | undefined> = (async () => {
 	try {
 		const root_absolute = path.resolve(config.server.path.public)
 		const fsStats = await fs.stat(root_absolute).catch(() => null)
-		if (!fsStats?.isDirectory()) {
-			throw new errors.ConfigurationError(
-				'Server misconfigured: config.server.path.public must be a directory.',
-				config.server,
-			)
-		}
+		if (!fsStats?.isDirectory()) return undefined
 		const root_realpath = await fs.realpath(root_absolute)
 		return root_realpath
 	} catch (error: any) {
@@ -28,7 +23,10 @@ export async function isFileWithinRoot(file: string): Promise<boolean> {
 	try {
 		if (!file || file.includes('\0') || !path.isAbsolute(file)) return false
 		const file_realpath = await fs.realpath(path.resolve(file))
-		const relative = path.relative(await _rootPublicRealpath, file_realpath)
+		const public_realpath = await _rootPublicRealpath
+		if (!file_realpath || !public_realpath) return false
+
+		const relative = path.relative(public_realpath, file_realpath)
 		if (
 			relative === '' ||
 			(relative !== '..' &&
@@ -52,6 +50,15 @@ export async function isFileExisting(file: string): Promise<boolean> {
 		await fs.access(file)
 		return true
 	} catch {
+		return false
+	}
+}
+
+export async function isDirectoryExisting(dir: string): Promise<boolean> {
+	try {
+		const fsStats = await fs.stat(dir)
+		return fsStats.isDirectory()
+	} catch (error: any) {
 		return false
 	}
 }

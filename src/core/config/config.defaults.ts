@@ -32,15 +32,7 @@ export const defaults: configTypes.Config = {
 	filesystem: {
 		resolve_extension: true,
 	},
-	endpoints: [
-		{
-			enable: true,
-			path: '/api/v1/test/{id}',
-			file: './dummy.yaml',
-			format: 'json',
-			filter: './test.js',
-		},
-	],
+	endpoints: [],
 	auth: {
 		enable: false,
 		oauth2: {

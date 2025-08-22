@@ -5,6 +5,8 @@ import pino from 'pino'
 import pinoHttp from 'pino-http'
 import { config, configTypes } from '@/core'
 
+type LogFnRest = pino.LogFn extends (a: any, b?: any, ...r: infer R) => any ? R : never
+
 const loggerApp = pino({
 	enabled: config.logging.app.enable,
 	level: getMinLogLevel(config.logging.app.stdout.level, config.logging.app.filesystem.level),
@@ -18,6 +20,7 @@ const loggerHttp = pinoHttp({
 	enabled: config.logging.http.enable,
 	level: getMinLogLevel(config.logging.http.stdout.level, config.logging.http.filesystem.level),
 	base: undefined,
+	redact: { paths: ['request.headers.authorization'] },
 	timestamp: pino.stdTimeFunctions.isoTime,
 	genReqId: (request, response) => {
 		const header = request.headers['x-request-id'] as string
@@ -32,6 +35,16 @@ const loggerHttp = pinoHttp({
 		if (error || response.statusCode >= 500) return 'error'
 		if (response.statusCode >= 400) return 'warn'
 		return 'info'
+	},
+	customProps(request, response) {
+		return {
+			user: (request as any).user,
+		}
+	},
+	customAttributeKeys: {
+		req: 'request',
+		res: 'response',
+		err: 'error',
 	},
 	transport: getLoggerTransport(config.logging.http),
 })
@@ -110,22 +123,22 @@ function getLogMessage(first: any, second?: any): any {
 	return msg.join(' ')
 }
 
-export function trace(first: any, second?: any, ...rest: any) {
+export function trace(first: any, second?: any, ...rest: LogFnRest) {
 	loggerApp.trace(first, getLogMessage(first, second), ...rest)
 }
-export function debug(first: any, second?: any, ...rest: any) {
+export function debug(first: any, second?: any, ...rest: LogFnRest) {
 	loggerApp.debug(first, getLogMessage(first, second), ...rest)
 }
-export function info(first: any, second?: any, ...rest: any) {
+export function info(first: any, second?: any, ...rest: LogFnRest) {
 	loggerApp.info(first, getLogMessage(first, second), ...rest)
 }
-export function warn(first: any, second?: any, ...rest: any) {
+export function warn(first: any, second?: any, ...rest: LogFnRest) {
 	loggerApp.warn(first, getLogMessage(first, second), ...rest)
 }
-export function error(first: any, second?: any, ...rest: any) {
+export function error(first: any, second?: any, ...rest: LogFnRest) {
 	loggerApp.error(first, getLogMessage(first, second), ...rest)
 }
-export function fatal(first: any, second?: any, ...rest: any) {
+export function fatal(first: any, second?: any, ...rest: LogFnRest) {
 	loggerApp.fatal(first, getLogMessage(first, second), ...rest)
 }
 export const http: typeof loggerHttp = loggerHttp.bind(loggerHttp)

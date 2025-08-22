@@ -61,7 +61,8 @@ export function print() {
 	// Filesystem
 	if (config.server.locations.filesystem) {
 		console.log(` 📁  Filesystem`)
-		console.log(`      • ${config.server.locations.filesystem ? '✅' : '❌'}  /             →  ${config.server.path.public}`)
+		console.log(`      • Resolve Extensions   ${parseBool2Enabled(config.filesystem.resolve_extension)}`)
+		console.log(`      • ${parseBool(config.server.locations.filesystem)}  /             →  ${config.server.path.public}`)
 		console.log()
 	}
 
@@ -70,7 +71,7 @@ export function print() {
 		console.log(` 📡  Endpoints`)
 		if ( config.endpoints.length > 0) {
 			for (const endpoint of config.endpoints) {
-				console.log(`      • ${endpoint.enable ? '✅' : '❌'}  ${endpoint.path}  →  ${endpoint.file} (${endpoint.format ?? '-'})`)
+				console.log(`      • ${endpoint.enable ? '✅' : '❌'}  ${endpoint.path}  →  ${endpoint.filter ?? '<no filter>'}  →  ${endpoint.file} (${endpoint.format ?? '-'})`)
 			}
 		} else {
 				console.log(`      • ❌  None`)

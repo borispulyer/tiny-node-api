@@ -2,7 +2,13 @@
  * Imports
  */
 import path from 'node:path'
-import { configDefaults, configTypes, parsers, objects, types } from '@/core'
+import * as errors from '@/errors'
+import { configDefaults, configTypes, parsers, objects, types, files } from '@/core'
+import { auth } from '@/auth'
+import { endpoints } from '@/server/modules'
+import { isFormatterRegistered } from '@/formatter'
+import { isModifierRegistered } from '@/modifier'
+import { isParserRegistered } from '@/parser'
 
 /**
  * Assign environment variables to config and merge with defaults
@@ -42,6 +48,7 @@ const env: types.DeepPartial<configTypes.Config> = {
 	filesystem: {
 		resolve_extension: parsers.parseBool(process.env.FILESYSTEM_RESOLVE_EXT),
 	},
+	endpoints: parsers.parseJson2Array(process.env.ENDPOINTS),
 	auth: {
 		enable: parsers.parseBool(process.env.AUTH_ENABLE),
 		oauth2: {
@@ -108,3 +115,81 @@ const env: types.DeepPartial<configTypes.Config> = {
 }
 
 export const config = objects.assignSourceToTemplate(configDefaults, env) as configTypes.Config
+
+export async function checkConfig(_config: configTypes.Config = config): Promise<void> {
+	// config.server.path
+	for (const key of Object.keys(_config.server.path) as Array<keyof typeof _config.server.path>) {
+		if (!(await files.isDirectoryExisting(_config.server.path[key]))) {
+			throw new errors.ConfigurationError(
+				`Directory of config.server.path.${key} ("${_config.server.path[key]}") does not exist.`,
+				_config.server,
+			)
+		}
+	}
+
+	// config.endpoints
+	for (const endpoint of _config.endpoints) {
+		if (!endpoint.enable) continue
+		const file = path.resolve(_config.server.path.public, endpoint.file)
+		if (!(await files.isFileExisting(file))) {
+			throw new errors.ConfigurationError(
+				`Endpoint configuration error: Endpoint file "${endpoint.file}" does not exist.`,
+				endpoint,
+			)
+		}
+		if (!isParserRegistered(file)) {
+			throw new errors.ConfigurationError(
+				`Endpoint configuration error: Parser for endpoint file "${endpoint.file}" is not available.`,
+				endpoint,
+			)
+		}
+		if (endpoint.format && !isFormatterRegistered(endpoint.format)) {
+			throw new errors.ConfigurationError(
+				`Endpoint configuration error: Formatter for "${endpoint.format}" is not available.`,
+				endpoint,
+			)
+		}
+		if (
+			endpoint.filter &&
+			!(await files.isFileExisting(path.resolve(_config.server.path.filter, endpoint.filter)))
+		) {
+			throw new errors.ConfigurationError(
+				`Endpoint configuration error: Filter file "${endpoint.filter}" does not exist.`,
+				endpoint,
+			)
+		}
+	}
+
+	// config.auth
+	if (
+		_config.auth.enable &&
+		(!_config.auth.oauth2.issuerUri ||
+			!_config.auth.oauth2.jwksUri ||
+			!_config.auth.oauth2.audience)
+	) {
+		throw new errors.ConfigurationError(
+			`Auth module configuration error: config.auth.oauth2.issuerUri, config.auth.oauth2.jwksUri and config.auth.oauth2.audience are mandatory.`,
+			_config.auth,
+		)
+	}
+
+	// config.modifier
+	for (const key of Object.keys(_config.modifier.modules) as Array<
+		keyof typeof _config.modifier.modules
+	>) {
+		if (!isModifierRegistered(key)) {
+			throw new errors.ConfigurationError(
+				`Modifier configuration error: Modifier "${key}" is not available.`,
+				_config.modifier,
+			)
+		}
+	}
+
+	// config.formatter
+	if (_config.formatter.default && !isFormatterRegistered(_config.formatter.default)) {
+		throw new errors.ConfigurationError(
+			`Formatter configuration error: Default formatter "${_config.formatter.default}" is not available.`,
+			_config.formatter,
+		)
+	}
+}

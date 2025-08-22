@@ -18,17 +18,17 @@
   "license": "GNU",
   "private": true,
   "type": "module",
-  "main": "dist/server.js",
+  "main": "dist/main.js",
   "engines": {
     "node": ">=20"
   },
   "scripts": {
-    "dev": "tsx watch --clear-screen=false src/server.ts",
+    "dev": "tsx watch --clear-screen=false src/main.ts",
     "clean": "rm -rf dist",
     "build": "tsup --config tsup.config.ts",
     "build:prod": "cross-env NODE_ENV=production tsup --config tsup.config.ts",
-    "start": "node --enable-source-maps dist/server.js",
-    "start:prod": "cross-env NODE_ENV=production node --enable-source-maps dist/server.js",
+    "start": "node --enable-source-maps dist/main.js",
+    "start:prod": "cross-env NODE_ENV=production node --enable-source-maps dist/main.js",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "format": "prettier --write src/",
     "format:check": "prettier --check src/"

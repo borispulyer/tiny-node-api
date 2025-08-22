@@ -18,7 +18,7 @@ export async function auth(request: http.IncomingMessage): Promise<jose.JWTPaylo
 		// Validate configuration
 		if (!audience || !issuerUri || !_jwks) {
 			throw new errors.AuthConfigurationError(
-				`Authentication module is not properly configured: issuerUri, jwksUri and audience are mandatory.`,
+				`Authentication module configuration error: issuerUri, jwksUri and audience are mandatory.`,
 			)
 		}
 

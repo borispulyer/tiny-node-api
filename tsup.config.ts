@@ -3,7 +3,7 @@ import { defineConfig } from 'tsup'
 const isProd = process.env.NODE_ENV === 'production'
 
 export default defineConfig({
-	entry: ['src/server.ts'],
+	entry: ['src/main.ts'],
 	outDir: 'dist',
 	target: 'node20',
 	platform: 'node',

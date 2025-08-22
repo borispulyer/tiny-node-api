@@ -4,11 +4,11 @@
 services:
 
   # Development Container
-  dev-tiny-config-server:
+  dev-tiny-static-api:
     build:
       context: "../"
       dockerfile: "./.devcontainer/Dockerfile"
-    container_name: "dev-tiny-config-server"
+    container_name: "dev-tiny-static-api"
     restart: "unless-stopped"
     security_opt:
       - "no-new-privileges:true"

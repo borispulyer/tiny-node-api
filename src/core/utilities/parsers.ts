@@ -31,7 +31,14 @@ export function parseString(value: unknown): string | undefined {
 export function parseLogLevel(value: unknown): configTypes.LogLevel | undefined {
 	if (typeof value !== 'string') return undefined
 	const str = value.trim().toLocaleLowerCase()
-	if (['fatal', 'error', 'warn', 'info', 'debug', 'trace'].includes(str))
+	if (['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'].includes(str))
 		return str as configTypes.LogLevel
+	return undefined
+}
+
+export function parseJson2Array(value: unknown): any[] | undefined {
+	if (typeof value !== 'string') return undefined
+	const obj = JSON.parse(value)
+	if (obj) return Array.isArray(obj) ? obj : [obj]
 	return undefined
 }

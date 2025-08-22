@@ -1,7 +1,7 @@
 {
-  "name": "dev-tiny-config-server",
+  "name": "dev-tiny-static-api",
   "dockerComposeFile": "compose.yaml",
-  "service": "dev-tiny-config-server",
+  "service": "dev-tiny-static-api",
   "workspaceFolder": "/workspace",
   "customizations": {
     "vscode": {
