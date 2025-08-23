@@ -22,7 +22,11 @@ const _indexModifiers: Map<string, modifiers.Modifier> = (() => {
 })()
 
 /**
- * Modify a JavaScript object and return.
+ * Apply one or more modifiers to a JavaScript object.
+ * @param data - Data object to modify.
+ * @param selector - Modifier identifier or list of identifiers.
+ * @param base_dir - Base directory for file-based modifiers.
+ * @returns Modified data object.
  */
 export async function modify(
 	data: any,
@@ -48,10 +52,19 @@ export async function modify(
 	return data
 }
 
+/**
+ * Check whether a modifier exists for a selector.
+ * @param selector - Modifier selector to check.
+ * @returns True if modifier is registered.
+ */
 export function isModifierRegistered(selector: string): boolean {
 	return _indexModifiers.has(selector.toLowerCase().trim())
 }
 
+/**
+ * Retrieve meta information about registered modifier modules.
+ * @returns Array of modifier IDs and selectors.
+ */
 export function getModules(): { id: string; selector: string }[] {
 	const result = []
 	for (const [key, value] of Object.entries(modifiers)) {

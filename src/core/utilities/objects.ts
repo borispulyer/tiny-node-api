@@ -9,12 +9,24 @@ type DeepPartial<T> = T extends Function | Date | RegExp | Map<any, any> | Set<a
 			? { [K in keyof T]?: DeepPartial<T[K]> }
 			: T
 
+/**
+ * Determine if a value is a plain JavaScript object.
+ * @param value - Value to inspect.
+ * @returns True if the value is a plain object.
+ */
 export function isPlainObject(value: unknown): value is Record<string, unknown> {
 	if (value === null || typeof value !== 'object') return false
 	const proto = Object.getPrototypeOf(value)
 	return proto === Object.prototype || proto === null
 }
 
+/**
+ * Merge values from a source object into a template.
+ * @param template - Target object serving as template.
+ * @param source - Source values applied to the template.
+ * @param options - Merge options such as overwrite behavior and cloning.
+ * @returns Modified template object.
+ */
 export function assignSourceToTemplate<T extends Record<string, any>>(
 	template: T = {} as T,
 	source: DeepPartial<T> | null | undefined = {} as DeepPartial<T>,
@@ -53,6 +65,12 @@ export function assignSourceToTemplate<T extends Record<string, any>>(
 	return target
 }
 
+/**
+ * Sequentially assign multiple source objects to a template.
+ * @param template - Target object serving as template.
+ * @param sources - Collection of source objects to merge.
+ * @returns Modified template object.
+ */
 export function assignSourcesToTemplate<T extends Record<string, any>>(
 	template: T = {} as T,
 	...sources: Array<DeepPartial<T> | null | undefined>
@@ -63,6 +81,12 @@ export function assignSourcesToTemplate<T extends Record<string, any>>(
 	return template
 }
 
+/**
+ * Clone a template and assign multiple sources to it.
+ * @param template - Template object to clone.
+ * @param sources - Collection of sources applied to the clone.
+ * @returns New object containing merged sources.
+ */
 export function cloneSourcesToTemplate<T extends Record<string, any>>(
 	template: T = {} as T,
 	...sources: Array<DeepPartial<T> | null | undefined>

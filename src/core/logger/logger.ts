@@ -25,6 +25,12 @@ const loggerHttp = pinoHttp({
 	base: undefined,
 	redact: { paths: ['request.headers.authorization'] },
 	timestamp: pino.stdTimeFunctions.isoTime,
+	/**
+	 * Generate a unique request identifier.
+	 * @param request - Incoming HTTP request.
+	 * @param response - Server response object.
+	 * @returns Generated request ID.
+	 */
 	genReqId: (request, response) => {
 		const header = request.headers['x-request-id'] as string
 		const id =
@@ -34,11 +40,24 @@ const loggerHttp = pinoHttp({
 		response.setHeader('x-request-id', id)
 		return id
 	},
+	/**
+	 * Determine log level for the current HTTP response.
+	 * @param request - Incoming HTTP request.
+	 * @param response - Server response object.
+	 * @param error - Optional error encountered while handling request.
+	 * @returns Log level string.
+	 */
 	customLogLevel(request, response, error) {
 		if (error || response.statusCode >= 500) return 'error'
 		if (response.statusCode >= 400) return 'warn'
 		return 'info'
 	},
+	/**
+	 * Append custom properties to log entries.
+	 * @param request - Incoming HTTP request.
+	 * @param response - Server response object.
+	 * @returns Object merged into log context.
+	 */
 	customProps(request, response) {
 		return {
 			user: (request as any).user,
@@ -52,6 +71,11 @@ const loggerHttp = pinoHttp({
 	transport: getLoggerTransport(config.logging.http),
 })
 
+/**
+ * Determine the lowest log level among provided values.
+ * @param levels - Log levels to compare.
+ * @returns Lowest severity log level.
+ */
 function getMinLogLevel(...levels: configTypes.LogLevel[]) {
 	let index = Infinity
 	const logLevels: configTypes.LogLevel[] = [
@@ -69,6 +93,11 @@ function getMinLogLevel(...levels: configTypes.LogLevel[]) {
 	return logLevels[index]
 }
 
+/**
+ * Build transport configuration for pino based on settings.
+ * @param conf - Logger configuration section.
+ * @returns Transport configuration or undefined.
+ */
 function getLoggerTransport(conf: (typeof config.logging)[keyof typeof config.logging]) {
 	const targets = []
 	if (conf.stdout.enable) {
@@ -101,6 +130,12 @@ function getLoggerTransport(conf: (typeof config.logging)[keyof typeof config.lo
 	return undefined
 }
 
+/**
+ * Create a normalized log message from provided arguments.
+ * @param first - First argument containing context or error.
+ * @param second - Optional message override.
+ * @returns Composed log message.
+ */
 function getLogMessage(first: any, second?: any): any {
 	const msg = []
 	if (first.hasOwnProperty && first.hasOwnProperty('module')) {
@@ -126,21 +161,63 @@ function getLogMessage(first: any, second?: any): any {
 	return msg.join(' ')
 }
 
+/**
+ * Log a trace level message.
+ * @param first - Context object or error.
+ * @param second - Optional message.
+ * @param rest - Additional log parameters.
+ * @returns Void.
+ */
 export function trace(first: any, second?: any, ...rest: LogFnRest) {
 	loggerApp.trace(first, getLogMessage(first, second), ...rest)
 }
+/**
+ * Log a debug level message.
+ * @param first - Context object or error.
+ * @param second - Optional message.
+ * @param rest - Additional log parameters.
+ * @returns Void.
+ */
 export function debug(first: any, second?: any, ...rest: LogFnRest) {
 	loggerApp.debug(first, getLogMessage(first, second), ...rest)
 }
+/**
+ * Log an info level message.
+ * @param first - Context object or error.
+ * @param second - Optional message.
+ * @param rest - Additional log parameters.
+ * @returns Void.
+ */
 export function info(first: any, second?: any, ...rest: LogFnRest) {
 	loggerApp.info(first, getLogMessage(first, second), ...rest)
 }
+/**
+ * Log a warning level message.
+ * @param first - Context object or error.
+ * @param second - Optional message.
+ * @param rest - Additional log parameters.
+ * @returns Void.
+ */
 export function warn(first: any, second?: any, ...rest: LogFnRest) {
 	loggerApp.warn(first, getLogMessage(first, second), ...rest)
 }
+/**
+ * Log an error level message.
+ * @param first - Context object or error.
+ * @param second - Optional message.
+ * @param rest - Additional log parameters.
+ * @returns Void.
+ */
 export function error(first: any, second?: any, ...rest: LogFnRest) {
 	loggerApp.error(first, getLogMessage(first, second), ...rest)
 }
+/**
+ * Log a fatal level message.
+ * @param first - Context object or error.
+ * @param second - Optional message.
+ * @param rest - Additional log parameters.
+ * @returns Void.
+ */
 export function fatal(first: any, second?: any, ...rest: LogFnRest) {
 	loggerApp.fatal(first, getLogMessage(first, second), ...rest)
 }

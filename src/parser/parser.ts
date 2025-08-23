@@ -26,8 +26,8 @@ const _indexParsers: Map<string, parsers.Parser> = (() => {
 
 /**
  * Parse a file into a JavaScript object.
- * @param file
- * @returns
+ * @param file - Absolute path of the file to parse.
+ * @returns Parsed content as JavaScript object.
  */
 export async function parse(file: string): Promise<any> {
 	logger.trace({ module: 'parser', file }, `Starting parser...`)
@@ -54,14 +54,27 @@ export async function parse(file: string): Promise<any> {
 	}
 }
 
+/**
+ * Check whether a parser exists for a given file.
+ * @param file - Path of the file to check.
+ * @returns True if a parser is registered for the file extension.
+ */
 export function isParserRegistered(file: string): boolean {
 	return _indexParsers.has(path.extname(file).toLowerCase().trim().replace(/^\./, ''))
 }
 
+/**
+ * List supported file extensions.
+ * @returns Array of supported file extensions.
+ */
 export function getSupportedExtensions(): string[] {
 	return [..._indexParsers.keys()]
 }
 
+/**
+ * Retrieve meta information about registered parser modules.
+ * @returns Array of parser module identifiers and their extensions.
+ */
 export function getModules(): { id: string; extensions: string[] }[] {
 	const result = []
 	for (const [key, value] of Object.entries(parsers)) {

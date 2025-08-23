@@ -5,6 +5,12 @@ import path from 'node:path'
 import fs from 'node:fs/promises'
 import { config, logger } from '@/core'
 
+/**
+ * Check whether a file resides inside a configured root directory.
+ * @param file - Absolute path of the file to inspect.
+ * @param id - Key of the root directory within configuration.
+ * @returns True if file is inside the root directory, otherwise false.
+ */
 export async function isFileWithinRoot(
 	file: string,
 	id: keyof typeof config.server.path = 'public',
@@ -30,6 +36,11 @@ export async function isFileWithinRoot(
 	}
 }
 
+/**
+ * Determine if a file exists on the filesystem.
+ * @param file - Absolute path of the file to check.
+ * @returns True if the file exists, otherwise false.
+ */
 export async function isFileExisting(file: string): Promise<boolean> {
 	try {
 		await fs.access(file)
@@ -39,6 +50,11 @@ export async function isFileExisting(file: string): Promise<boolean> {
 	}
 }
 
+/**
+ * Determine if a path points to an existing directory.
+ * @param dir - Absolute path of the directory to check.
+ * @returns True if the directory exists, otherwise false.
+ */
 export async function isDirectoryExisting(dir: string): Promise<boolean> {
 	try {
 		const fsStats = await fs.stat(dir)

@@ -55,6 +55,11 @@ export async function auth(request: http.IncomingMessage): Promise<jose.JWTPaylo
 	}
 }
 
+/**
+ * Extract bearer token from Authorization header.
+ * @param request - Incoming HTTP request.
+ * @returns Token string if present.
+ */
 function getBearerToken(request: http.IncomingMessage): string | undefined {
 	const token = request?.headers?.authorization?.split(' ')
 	if (token && token[0] === 'Bearer' && token[1]) return token[1]

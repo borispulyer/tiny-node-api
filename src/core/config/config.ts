@@ -116,6 +116,11 @@ const env: types.DeepPartial<configTypes.Config> = {
 
 export const config = objects.assignSourceToTemplate(configDefaults, env) as configTypes.Config
 
+/**
+ * Validate configuration values and ensure referenced resources exist.
+ * @param _config - Configuration object to validate.
+ * @returns Void.
+ */
 export async function checkConfig(_config: configTypes.Config = config): Promise<void> {
 	// config.server.path
 	for (const key of Object.keys(_config.server.path) as Array<keyof typeof _config.server.path>) {

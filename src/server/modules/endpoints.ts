@@ -47,6 +47,11 @@ const _indexEndpoints = (() => {
 	return endpoints
 })()
 
+/**
+ * Handle configured endpoint requests.
+ * @param pathname - Requested URL pathname.
+ * @returns Endpoint payload or undefined if not responsible.
+ */
 export async function endpoints(
 	pathname: string,
 ): Promise<{ content: any; mime: string; file?: string } | undefined> {
@@ -159,6 +164,11 @@ export async function endpoints(
 	return result
 }
 
+/**
+ * Match a pathname against configured endpoints.
+ * @param pathname - URL pathname to match.
+ * @returns Matched endpoint with parameters or null if none matches.
+ */
 function matchEndpoint(pathname: string) {
 	for (const endpoint of _indexEndpoints) {
 		if (endpoint.regex) {

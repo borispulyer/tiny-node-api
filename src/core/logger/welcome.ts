@@ -7,6 +7,10 @@ import * as Modifier from '@/modifier'
 import * as Formatter from '@/formatter'
 import { config } from '@/core'
 
+/**
+ * Output a formatted welcome message with current configuration details.
+ * @returns Void.
+ */
 export function print() {
 	// Definitions
 	const line = '─'.repeat(60)
@@ -155,18 +159,38 @@ export function print() {
 	console.log()
 }
 
+/**
+ * Convert a boolean to a checkmark or cross symbol.
+ * @param value - Boolean value to format.
+ * @returns Checkmark for true or cross for false.
+ */
 function parseBool(value: boolean | null | undefined): string {
-	return value ? '✅' : '❌'
+        return value ? '✅' : '❌'
 }
 
+/**
+ * Convert a boolean to an enabled/disabled string.
+ * @param value - Boolean value to format.
+ * @returns "✅ enabled" or "❌ disabled" based on value.
+ */
 function parseBool2Enabled(value: boolean | null | undefined): string {
-	return value ? '✅ enabled' : '❌ disabled'
+        return value ? '✅ enabled' : '❌ disabled'
 }
 
+/**
+ * Ensure a string value is printable, using <empty> for falsy values.
+ * @param value - String to format.
+ * @returns Original string or <empty> when falsy.
+ */
 function parseString(value: string | null | undefined): string {
-	return value ? value : '<empty>'
+        return value ? value : '<empty>'
 }
 
+/**
+ * Format a string as an enabled or disabled message.
+ * @param value - String to include.
+ * @returns "✅ value" or "❌ disabled" when missing.
+ */
 function parseString2Enabled(value: string | null | undefined): string {
-	return value ? `✅ ${value}` : '❌ disabled'
+        return value ? `✅ ${value}` : '❌ disabled'
 }

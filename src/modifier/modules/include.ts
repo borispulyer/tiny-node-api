@@ -9,7 +9,19 @@ import type { Modifier } from '.'
 
 export default {
 	selector: 'include',
+	/**
+	 * Modifier that includes external files referenced by __include__ directives.
+	 * @param data - Input data containing include directives.
+	 * @param options - Options containing baseDir for resolving files.
+	 * @returns Data with includes resolved.
+	 */
 	fn: async (data: any, options: any): Promise<any> => {
+		/**
+		 * Recursively walk through data structure and resolve include directives.
+		 * @param node - Current node to process.
+		 * @param base_dir - Base directory for resolving paths.
+		 * @returns Node with includes resolved.
+		 */
 		async function _walk(node: any, base_dir: string): Promise<any> {
 			if (!node) return node
 

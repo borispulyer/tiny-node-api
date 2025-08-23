@@ -7,6 +7,11 @@ import * as Auth from '@/auth'
 import * as errors from '@/errors'
 import { config, logger } from '@/core'
 
+/**
+ * Authenticate a request using configured OAuth2 provider.
+ * @param request - Incoming HTTP request.
+ * @returns JWT payload if authentication succeeds or undefined if disabled.
+ */
 export async function auth(request: http.IncomingMessage): Promise<JWTPayload | undefined> {
 	if (config.auth.enable) {
 		try {

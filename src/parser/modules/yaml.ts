@@ -10,6 +10,11 @@ import type { Parser } from '.'
  */
 export default {
 	extensions: ['yaml', 'yml'],
+	/**
+	 * Parse a YAML file into a JavaScript object.
+	 * @param file - Absolute path of the YAML file.
+	 * @returns Parsed JavaScript object.
+	 */
 	fn: async (file: string): Promise<any> => {
 		const raw = await fs.readFile(file, { encoding: 'utf8' })
 		return yaml.parse(raw, {

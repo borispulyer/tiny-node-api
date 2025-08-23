@@ -12,6 +12,12 @@ import { config, url, logger } from '@/core'
  * Initialize HTTP server
  */
 export const server = http
+	/**
+	 * Handle incoming HTTP requests.
+	 * @param request - Incoming HTTP request.
+	 * @param response - Server response object.
+	 * @returns Promise resolving when the request has been handled.
+	 */
 	.createServer(async (request, response) => {
 		logger.http(request, response)
 		try {
@@ -60,6 +66,11 @@ export const server = http
 			throw error
 		}
 	})
+	/**
+	 * Configure new connections and enforce socket timeouts.
+	 * @param socket - Connected socket.
+	 * @returns Void.
+	 */
 	.on('connection', (socket) => {
 		socket.setTimeout(config.server.timeouts.socket)
 		socket.on('timeout', () => {
@@ -79,6 +90,12 @@ server.headersTimeout = config.server.timeouts.headers
 server.requestTimeout = config.server.timeouts.request
 server.maxRequestsPerSocket = config.server.maxRequestsPerSocket
 
+/**
+ * Create and send an HTTP response based on payload data.
+ * @param payload - Object containing response content and metadata.
+ * @param server - Request and response objects of the current connection.
+ * @returns The response object.
+ */
 async function createResponse(
 	payload: { content: any; mime: string; file?: string } | undefined,
 	server: { request: http.IncomingMessage; response: http.ServerResponse },

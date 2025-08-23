@@ -3,6 +3,11 @@
  */
 import { config, logger } from '@/core'
 
+/**
+ * Handle heartbeat requests and respond with a simple message.
+ * @param pathname - Requested URL pathname.
+ * @returns Heartbeat payload or undefined if not responsible.
+ */
 export async function heartbeat(
 	pathname: string,
 ): Promise<{ content: any; mime: string; file?: string } | undefined> {

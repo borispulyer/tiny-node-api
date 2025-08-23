@@ -10,6 +10,11 @@ export type FilterFn = (data: any, params?: Record<string, string>) => any | Pro
 
 const _cacheFilterFn = new Map<string, FilterFn>()
 
+/**
+ * Load a filter function from file system with caching.
+ * @param file - Absolute path of the filter module.
+ * @returns Filter function if found, otherwise undefined.
+ */
 export async function getFilterFn(file: string): Promise<FilterFn | undefined> {
 	try {
 		// Valdiate

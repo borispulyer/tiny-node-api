@@ -8,6 +8,11 @@ import * as Formatter from '@/formatter'
 import * as errors from '@/errors'
 import { config, logger, files } from '@/core'
 
+/**
+ * Serve files from the filesystem based on request pathname.
+ * @param pathname - Requested URL pathname.
+ * @returns File payload or undefined if not responsible.
+ */
 export async function filesystem(
 	pathname: string,
 ): Promise<{ content: any; mime: string; file?: string } | undefined> {
@@ -103,6 +108,11 @@ export async function filesystem(
 	return result
 }
 
+/**
+ * Resolve the actual source file for a requested path, considering extension resolution.
+ * @param requested_file - Path derived from the request.
+ * @returns Absolute path of the found source file or null.
+ */
 async function getSourceFile(requested_file: string): Promise<string | null> {
 	// Check if requested_file is existing
 	if (await files.isFileExisting(requested_file)) return requested_file

@@ -28,6 +28,10 @@ export class AuthError extends Error {
 		this.header.error_description = undefined
 	}
 
+	/**
+	 * Build the WWW-Authenticate header value based on error details.
+	 * @returns Constructed header string or undefined.
+	 */
 	public getWWWAuthenticateHeader(): string | undefined {
 		const parts = [
 			this.header.realm && `realm="${this.header.realm}"`,

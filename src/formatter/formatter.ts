@@ -27,9 +27,9 @@ const _indexFormatters: Map<string, formatters.Formatter> = (() => {
 
 /**
  * Format a JavaScript object and return a string.
- * @param data
- * @param selector
- * @returns
+ * @param data - Input data to format.
+ * @param selector - Formatter selector identifying the output format.
+ * @returns Object containing MIME type and formatted content.
  */
 export async function format(
 	data: any,
@@ -53,10 +53,19 @@ export async function format(
 	}
 }
 
+/**
+ * Check whether a formatter exists for a selector.
+ * @param selector - Formatter selector to check.
+ * @returns True if formatter is registered.
+ */
 export function isFormatterRegistered(selector: string): boolean {
 	return _indexFormatters.has(selector.toLowerCase().trim())
 }
 
+/**
+ * Retrieve meta information about registered formatter modules.
+ * @returns Array of formatter IDs, selectors and MIME types.
+ */
 export function getModules(): { id: string; selectors: string[]; mime: string }[] {
 	const result = []
 	for (const [key, value] of Object.entries(formatters)) {
