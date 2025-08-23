@@ -6,6 +6,9 @@ import * as jose from 'jose'
 import * as errors from './errors'
 import { config, logger } from '@/core'
 
+/*
+ * Definitions
+ */
 const { issuerUri, jwksUri, audience } = config.auth.oauth2
 
 const _jwks = jwksUri ? jose.createRemoteJWKSet(new URL(jwksUri)) : undefined

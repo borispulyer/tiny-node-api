@@ -38,7 +38,9 @@ export function parseLogLevel(value: unknown): configTypes.LogLevel | undefined 
 
 export function parseJson2Array(value: unknown): any[] | undefined {
 	if (typeof value !== 'string') return undefined
-	const obj = JSON.parse(value)
-	if (obj) return Array.isArray(obj) ? obj : [obj]
+	try {
+		const obj = JSON.parse(value)
+		if (obj) return Array.isArray(obj) ? obj : [obj]
+	} catch (error: any) {}
 	return undefined
 }

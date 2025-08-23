@@ -15,8 +15,6 @@ export const server = http
 	.createServer(async (request, response) => {
 		logger.http(request, response)
 		try {
-			const t0 = performance.now()
-
 			// Validate Method
 			if (request.method !== 'GET')
 				throw new errors.HttpError('Method not allowed', 405, { Allow: 'GET' })
@@ -47,7 +45,7 @@ export const server = http
 		} catch (error: any) {
 			if (error instanceof errors.ConfigurationError) {
 				logger.error({ module: 'server', error })
-				response.writeHead(500).end(`Error 500 - Internal server error.`)
+				response.writeHead(500).end('Error 500 - Internal server error.')
 				return
 			}
 			if (error instanceof errors.HttpError) {

@@ -5,6 +5,9 @@ import pino from 'pino'
 import pinoHttp from 'pino-http'
 import { config, configTypes } from '@/core'
 
+/*
+ * Type Definitions
+ */
 type LogFnRest = pino.LogFn extends (a: any, b?: any, ...r: infer R) => any ? R : never
 
 const loggerApp = pino({

@@ -20,7 +20,7 @@ export default {
 			if (typeof node === 'object') {
 				if (typeof node['__include__'] === 'string') {
 					const file = path.resolve(base_dir, node['__include__'])
-					if (!files.isFileWithinRoot(file)) {
+					if (!(await files.isFileWithinRoot(file))) {
 						throw new errors.ModifierFileAccesError(
 							`Forbidden: "${file}" is not within server root directory`,
 						)

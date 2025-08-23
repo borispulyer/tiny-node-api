@@ -52,7 +52,7 @@ export async function endpoints(
 ): Promise<{ content: any; mime: string; file?: string } | undefined> {
 	logger.trace(
 		{ module: 'location/endpoints', pathname },
-		`Checking resbonsibility for current request...`,
+		`Checking responsibility for current request...`,
 	)
 
 	// Check Responsibility - Step 1
@@ -66,7 +66,7 @@ export async function endpoints(
 
 	logger.trace(
 		{ module: 'location/endpoints', requested_endpoint },
-		`Module is reponsible for current request. Handling request...`,
+		`Module is responsible for current request. Handling request...`,
 	)
 
 	const { endpoint, params } = requested_endpoint

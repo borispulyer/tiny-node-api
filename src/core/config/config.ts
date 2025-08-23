@@ -119,6 +119,13 @@ export const config = objects.assignSourceToTemplate(configDefaults, env) as con
 export async function checkConfig(_config: configTypes.Config = config): Promise<void> {
 	// config.server.path
 	for (const key of Object.keys(_config.server.path) as Array<keyof typeof _config.server.path>) {
+		if (!path.isAbsolute(_config.server.path[key])) {
+			throw new errors.ConfigurationError(
+				`Directory of config.server.path.${key} ("${_config.server.path[key]}") mst be absolute.`,
+				_config.server,
+			)
+		}
+
 		if (!(await files.isDirectoryExisting(_config.server.path[key]))) {
 			throw new errors.ConfigurationError(
 				`Directory of config.server.path.${key} ("${_config.server.path[key]}") does not exist.`,
@@ -133,7 +140,7 @@ export async function checkConfig(_config: configTypes.Config = config): Promise
 		const file = path.resolve(_config.server.path.public, endpoint.file)
 		if (!(await files.isFileExisting(file))) {
 			throw new errors.ConfigurationError(
-				`Endpoint configuration error: Endpoint file "${endpoint.file}" does not exist.`,
+				`Endpoint configuration error: Endpoint file "${path.resolve(_config.server.path.public, endpoint.file)}" does not exist.`,
 				endpoint,
 			)
 		}
@@ -151,10 +158,22 @@ export async function checkConfig(_config: configTypes.Config = config): Promise
 		}
 		if (
 			endpoint.filter &&
+			!(await files.isFileWithinRoot(
+				path.resolve(_config.server.path.filter, endpoint.filter),
+				'filter',
+			))
+		) {
+			throw new errors.ConfigurationError(
+				`Endpoint configuration error: Filter file "${path.resolve(_config.server.path.filter, endpoint.filter)}" is not within filter folder ("${config.server.path.filter}").`,
+				endpoint,
+			)
+		}
+		if (
+			endpoint.filter &&
 			!(await files.isFileExisting(path.resolve(_config.server.path.filter, endpoint.filter)))
 		) {
 			throw new errors.ConfigurationError(
-				`Endpoint configuration error: Filter file "${endpoint.filter}" does not exist.`,
+				`Endpoint configuration error: Filter file "${path.resolve(_config.server.path.filter, endpoint.filter)}" does not exist.`,
 				endpoint,
 			)
 		}

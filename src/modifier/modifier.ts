@@ -40,12 +40,12 @@ export async function modify(
 		try {
 			data = await modifier.fn(data, { baseDir: base_dir })
 			logger.trace({ module: 'modifier', result: data }, `Modifier successful.`)
-			return data
 		} catch (error: any) {
 			logger.debug({ module: 'modifier', error })
 			throw error
 		}
 	}
+	return data
 }
 
 export function isModifierRegistered(selector: string): boolean {

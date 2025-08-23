@@ -8,7 +8,7 @@ export async function heartbeat(
 ): Promise<{ content: any; mime: string; file?: string } | undefined> {
 	logger.trace(
 		{ module: 'location/heartbeat', pathname },
-		`Checking resbonsibility for current request...`,
+		`Checking responsibility for current request...`,
 	)
 	// Check Responsibility
 	if (!config.server.locations.heartbeat) return undefined
@@ -16,7 +16,7 @@ export async function heartbeat(
 
 	logger.trace(
 		{ module: 'location/heartbeat' },
-		`Module is reponsible for current request. Handling request...`,
+		`Module is responsible for current request. Handling request...`,
 	)
 
 	// Handle heartbeat
