@@ -1,4 +1,4 @@
-/**
+/*
  * Core
  */
 export * from './config'

@@ -4,8 +4,6 @@
 import path from 'node:path'
 import * as errors from '@/errors'
 import { configDefaults, configTypes, parsers, objects, types, files } from '@/core'
-import { auth } from '@/auth'
-import { endpoints } from '@/server/modules'
 import { isFormatterRegistered } from '@/formatter'
 import { isModifierRegistered } from '@/modifier'
 import { isParserRegistered } from '@/parser'
@@ -113,7 +111,6 @@ const env: types.DeepPartial<configTypes.Config> = {
 		},
 	},
 }
-
 export const config = objects.assignSourceToTemplate(configDefaults, env) as configTypes.Config
 
 /**

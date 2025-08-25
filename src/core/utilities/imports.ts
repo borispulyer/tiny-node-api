@@ -6,8 +6,14 @@ import { pathToFileURL } from 'node:url'
 import * as errors from '@/errors'
 import { logger, files } from '@/core'
 
+/*
+ * Type Definitions
+ */
 export type FilterFn = (data: any, params?: Record<string, string>) => any | Promise<any>
 
+/*
+ * Definitions
+ */
 const _cacheFilterFn = new Map<string, FilterFn>()
 
 /**

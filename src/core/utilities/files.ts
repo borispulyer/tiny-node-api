@@ -6,7 +6,7 @@ import fs from 'node:fs/promises'
 import { config, logger } from '@/core'
 
 /**
- * Check whether a file resides inside a configured root directory.
+ * Check whether a file resides inside a configured root directory. It does not validate symlinks.
  * @param file - Absolute path of the file to inspect.
  * @param id - Key of the root directory within configuration.
  * @returns True if file is inside the root directory, otherwise false.
