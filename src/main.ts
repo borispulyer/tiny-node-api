@@ -31,8 +31,10 @@ try {
 }
 
 /**
- * Start HTTP server
+ * Takeoff
  */
+
+// Start HTTP server
 server.listen(config.server.port, () => {
 	welcome.print()
 	logger.info({ module: 'server' }, `Server started at http://localhost:${config.server.port}`)

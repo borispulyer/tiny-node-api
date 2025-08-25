@@ -6,7 +6,7 @@ export type Modifier = {
 	fn: (data: any, options?: any) => Promise<any>
 }
 
-/**
+/*
  * Modifiers
  */
 export { default as include } from './include'

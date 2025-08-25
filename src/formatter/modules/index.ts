@@ -7,7 +7,7 @@ export type Formatter = {
 	fn: (data: any) => Promise<string>
 }
 
-/**
+/*
  * Formatters
  */
 export { default as yaml } from './yaml'

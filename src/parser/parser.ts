@@ -10,6 +10,8 @@ import { logger } from '../core'
 /*
  * Definitions
  */
+
+// Create a Map of all available parsers
 const _indexParsers: Map<string, parsers.Parser> = (() => {
 	const map: Map<string, parsers.Parser> = new Map()
 	for (const parser of Object.values(parsers)) {
@@ -30,15 +32,15 @@ const _indexParsers: Map<string, parsers.Parser> = (() => {
  * @returns Parsed content as JavaScript object.
  */
 export async function parse(file: string): Promise<any> {
-	logger.trace({ module: 'parser', file }, `Starting parser...`)
-	const file_extension = path.extname(file).toLowerCase().replace(/^\./, '')
-	const parser = _indexParsers.get(file_extension)
-	if (!parser) {
-		throw new errors.ParserMissingError(
-			`No parser for extension "${file_extension}" available.`,
-		)
-	}
 	try {
+		logger.trace({ module: 'parser', file }, `Starting parser...`)
+		const file_extension = path.extname(file).toLowerCase().replace(/^\./, '')
+		const parser = _indexParsers.get(file_extension)
+		if (!parser) {
+			throw new errors.ParserMissingError(
+				`No parser for extension "${file_extension}" available.`,
+			)
+		}
 		const result = await parser.fn(file)
 		logger.trace({ module: 'parser', result }, `Parsing successful.`)
 		return result
@@ -50,7 +52,10 @@ export async function parse(file: string): Promise<any> {
 		if (error.code === 'ENOENT') {
 			throw new errors.ParserFilereadError(`File "${file}" not found.`)
 		}
-		throw error
+		if (error instanceof errors.ParserError) {
+			throw error
+		}
+		throw new errors.ParserError(`Parser failed: ${error.message}`)
 	}
 }
 

@@ -1,7 +1,6 @@
 /*
  * Imports
  */
-import 'dotenv/config'
 import http from 'node:http'
 import fs from 'node:fs/promises'
 import * as modules from './modules'

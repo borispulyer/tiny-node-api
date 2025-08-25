@@ -9,6 +9,8 @@ import { logger } from '../core'
 /*
  * Definitions
  */
+
+// Create a Map of all available formatters
 const _indexFormatters: Map<string, formatters.Formatter> = (() => {
 	const map: Map<string, formatters.Formatter> = new Map()
 	for (const formatter of Object.values(formatters)) {
@@ -26,10 +28,12 @@ const _indexFormatters: Map<string, formatters.Formatter> = (() => {
 })()
 
 /**
- * Format a JavaScript object and return a string.
+ * Handle JavaScript object to string conversion.
  * @param data - Input data to format.
  * @param selector - Formatter selector identifying the output format.
  * @returns Object containing MIME type and formatted content.
+ * @throws {errors.FormatterMissingError} Throws if no formatter for selector available.
+ * @throws {errors.FormatterError} Throws if formatting failed for other reasons.
  */
 export async function format(
 	data: any,
@@ -38,18 +42,21 @@ export async function format(
 	mime: formatters.Formatter['mime']
 	content: string
 }> {
-	logger.trace({ module: 'formatter', data, selector }, `Starting formatter...`)
-	const formatter = _indexFormatters.get(selector.toLowerCase().trim())
-	if (!formatter) {
-		throw new errors.FormatterMissingError(`No formatter for '${selector}' available.`)
-	}
 	try {
+		logger.trace({ module: 'formatter', data, selector }, `Starting formatter...`)
+		const formatter = _indexFormatters.get(selector.toLowerCase().trim())
+		if (!formatter) {
+			throw new errors.FormatterMissingError(`No formatter for '${selector}' available.`)
+		}
 		const result = { mime: formatter.mime, content: await formatter.fn(data) }
 		logger.trace({ module: 'formatter', result }, `Formatter successful.`)
 		return result
 	} catch (error: any) {
 		logger.debug({ module: 'formatter', error })
-		throw error
+		if (error instanceof errors.FormatterError) {
+			throw error
+		}
+		throw new errors.FormatterError(`Formatting failed: ${error.message}`)
 	}
 }
 

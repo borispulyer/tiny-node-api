@@ -8,6 +8,11 @@ import * as Formatter from '@/formatter'
 import * as errors from '@/errors'
 import { config, logger, imports } from '@/core'
 
+/*
+ * Definitions
+ */
+
+// Create an Array of all available endpoints
 const _indexEndpoints = (() => {
 	const endpoints = []
 

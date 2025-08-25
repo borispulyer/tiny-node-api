@@ -1,4 +1,4 @@
-/**
+/*
  * Server
  */
 export * from './server'

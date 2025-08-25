@@ -6,7 +6,7 @@ export type Parser = {
 	fn: (file: string) => Promise<any>
 }
 
-/**
+/*
  * Parsers
  */
 export { default as yaml } from './yaml'

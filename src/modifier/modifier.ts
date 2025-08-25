@@ -9,6 +9,8 @@ import { logger } from '../core'
 /*
  * Definitions
  */
+
+// Create a Map of all available modifiers
 const _indexModifiers: Map<string, modifiers.Modifier> = (() => {
 	const map: Map<string, modifiers.Modifier> = new Map()
 	for (const modifier of Object.values(modifiers)) {
@@ -36,17 +38,20 @@ export async function modify(
 	logger.trace({ module: 'modifier', data, selector, base_dir }, `Starting modifier...`)
 	const selectors = Array.isArray(selector) ? selector : [selector]
 	for (const selector of selectors) {
-		if (!selector) continue
-		const modifier = _indexModifiers.get(selector.toLowerCase().trim())
-		if (!modifier) {
-			throw new errors.ModifierMissingError(`No modifier for '${selector}' available.`)
-		}
 		try {
+			if (!selector) continue
+			const modifier = _indexModifiers.get(selector.toLowerCase().trim())
+			if (!modifier) {
+				throw new errors.ModifierMissingError(`No modifier for '${selector}' available.`)
+			}
 			data = await modifier.fn(data, { baseDir: base_dir })
 			logger.trace({ module: 'modifier', result: data }, `Modifier successful.`)
 		} catch (error: any) {
 			logger.debug({ module: 'modifier', error })
-			throw error
+			if (error instanceof errors.ModifierError) {
+				throw error
+			}
+			throw new errors.ModifierError(`Modifier failed: ${error.message}`)
 		}
 	}
 	return data
