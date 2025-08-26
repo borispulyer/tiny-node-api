@@ -4,6 +4,8 @@
   "description": "A lightweight, configurable static API server that turns files (JSON, YAML) into HTTP endpoints. It can merge multiple files, run custom filter functions and supports OAuth2/JWT.",
   "keywords": [
     "server",
+    "api",
+    "node",
     "yaml",
     "yaml-parser",
     "yaml2json",
@@ -34,9 +36,11 @@
     "format:check": "prettier --check src/"
   },
   "dependencies": {
+    "dotenv": "^17.2.1",
     "jose": "^6.0.12",
     "pino": "^9.9.0",
     "pino-http": "^10.5.0",
+    "pino-pretty": "^13.1.1",
     "pino-roll": "^3.1.0",
     "yaml": "^2.3.3"
   },
@@ -44,8 +48,6 @@
     "@tsconfig/node24": "^24.0.1",
     "@types/node": "^24.1.0",
     "cross-env": "^7.0.3",
-    "dotenv": "^17.2.1",
-    "pino-pretty": "^13.1.1",
     "prettier": "^3.6.2",
     "tsup": "^8.2.4",
     "tsx": "^4.20.3",

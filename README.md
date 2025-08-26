@@ -115,20 +115,7 @@ services:
       - './filter:/app/filter:ro'
       - './logs:/app/logs'
     environment:
-      ENDPOINTS: '[
-        {
-        "enable": true,
-        "path": "/api/v1/users",
-        "file": "data/users.yaml",
-        "format": "json"
-        }, {
-        "enable": true,
-        "path": "/api/v1/users/{id}",
-        "file": "data/users.yaml",
-        "format": "json",
-        "filter": "userById.js"
-        }
-        ]'
+      ENDPOINTS: '[{"enable":true,"path":"/api/v1/users","file":"./data/users.yaml","format":"json"},{"enable":true,"path":"/api/v1/users/{id}","file":"data/users.yaml","format":"json","filter":"./userById.js"}]'
 ```
 
 **Build and run**
@@ -183,6 +170,10 @@ SERVER_LOCATIONS_HEARTBEAT=true
 SERVER_LOCATIONS_ENDPOINTS=true
 #	Enable direct filesystem access (true)
 SERVER_LOCATIONS_FILESYSTEM=true
+#	Cache-Control Header without authentication
+SERVER_CACHE_HEADER='stale-while-revalidate=300, stale-if-error=3600'
+#	Cache-Control Header with authentication
+SERVER_CACHE_HEADER_AUTH='private, no-cache'
 #	Socket timeout in milliseconds (5000 ms)
 SERVER_TIMEOUTS_SOCKET=5000
 #	Keep-alive timeout in milliseconds (75000 ms)
@@ -307,19 +298,21 @@ LOGGING_APP_LOGROTATION_SYMLINK=false
 
 ## Server
 
-| Variable                      | Purpose                                                                                              | Default               |
-| ----------------------------- | ---------------------------------------------------------------------------------------------------- | --------------------- |
-| `SERVER_PORT`                 | Port for the HTTP server.                                                                            | `3000`                |
-| `SERVER_PATH_PUBLIC`          | Root directory for serving files and resolving `endpoints[].file`.                                   | `project-root/public` |
-| `SERVER_PATH_FILTER`          | Root directory where filter function files live; `endpoints[].filter` is resolved under this folder. | `project-root/filter` |
-| `SERVER_LOCATIONS_HEARTBEAT`  | Enable the heartbeat location.                                                                       | `true`                |
-| `SERVER_LOCATIONS_ENDPOINTS`  | Enable endpoint-based serving.                                                                       | `true`                |
-| `SERVER_LOCATIONS_FILESYSTEM` | Enable direct filesystem serving.                                                                    | `true`                |
-| `SERVER_TIMEOUTS_SOCKET`      | Idle socket timeout (ms).                                                                            | `5_000`               |
-| `SERVER_TIMEOUTS_KEEPALIVE`   | Keep-alive timeout (ms).                                                                             | `75_000`              |
-| `SERVER_TIMEOUTS_HEADERS`     | Headers timeout (ms).                                                                                | `80_000`              |
-| `SERVER_TIMEOUTS_REQUEST`     | Request timeout (ms).                                                                                | `60_000`              |
-| `SERVER_MAX_REQUESTS`         | Max requests per TCP socket. Helps against slow-loris style connections.                             | `1000`                |
+| Variable                      | Purpose                                                                                              | Default                                           |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| `SERVER_PORT`                 | Port for the HTTP server.                                                                            | `3000`                                            |
+| `SERVER_PATH_PUBLIC`          | Root directory for serving files and resolving `endpoints[].file`.                                   | `project-root/public`                             |
+| `SERVER_PATH_FILTER`          | Root directory where filter function files live; `endpoints[].filter` is resolved under this folder. | `project-root/filter`                             |
+| `SERVER_LOCATIONS_HEARTBEAT`  | Enable the heartbeat location.                                                                       | `true`                                            |
+| `SERVER_LOCATIONS_ENDPOINTS`  | Enable endpoint-based serving.                                                                       | `true`                                            |
+| `SERVER_LOCATIONS_FILESYSTEM` | Enable direct filesystem serving.                                                                    | `true`                                            |
+| `SERVER_CACHE_HEADER`         | Set the "Cache-Control" HTTP header.                                                                 | `stale-while-revalidate=300, stale-if-error=3600` |
+| `SERVER_CACHE_HEADER_AUTH`    | Set the "Cache-Control" HTTP header if a user is authenticated.                                      | `private, no-cache`                               |
+| `SERVER_TIMEOUTS_SOCKET`      | Idle socket timeout (ms).                                                                            | `5_000`                                           |
+| `SERVER_TIMEOUTS_KEEPALIVE`   | Keep-alive timeout (ms).                                                                             | `75_000`                                          |
+| `SERVER_TIMEOUTS_HEADERS`     | Headers timeout (ms).                                                                                | `80_000`                                          |
+| `SERVER_TIMEOUTS_REQUEST`     | Request timeout (ms).                                                                                | `60_000`                                          |
+| `SERVER_MAX_REQUESTS`         | Max requests per TCP socket. Helps against slow-loris style connections.                             | `1000`                                            |
 
 **Notes**
 
@@ -957,6 +950,10 @@ services:
       #SERVER_LOCATIONS_ENDPOINTS: true
       #	Enable direct filesystem access (true)
       #SERVER_LOCATIONS_FILESYSTEM: true
+      #	Cache-Control Header without authentication
+      #SERVER_CACHE_HEADER: 'stale-while-revalidate=300, stale-if-error=3600'
+      #	Cache-Control Header with authentication
+      #SERVER_CACHE_HEADER_AUTH: 'private, no-cache'
       #	Socket timeout in milliseconds (5000 ms)
       #SERVER_TIMEOUTS_SOCKET: 5000
       #	Keep-alive timeout in milliseconds (75000 ms)

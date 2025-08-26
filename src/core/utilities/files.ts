@@ -43,8 +43,8 @@ export async function isFileWithinRoot(
  */
 export async function isFileExisting(file: string): Promise<boolean> {
 	try {
-		await fs.access(file)
-		return true
+		const fsStats = await fs.stat(file)
+		return fsStats.isFile()
 	} catch {
 		return false
 	}
@@ -59,7 +59,7 @@ export async function isDirectoryExisting(dir: string): Promise<boolean> {
 	try {
 		const fsStats = await fs.stat(dir)
 		return fsStats.isDirectory()
-	} catch (error: any) {
+	} catch {
 		return false
 	}
 }

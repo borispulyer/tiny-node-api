@@ -2,7 +2,6 @@
  * Imports
  */
 import http from 'node:http'
-import fs from 'node:fs/promises'
 import { JWTPayload } from 'jose'
 import * as modules from './modules'
 import * as errors from './errors'
@@ -116,7 +115,7 @@ async function createResponse(
 			? config.server.cache.cacheControlHeaderAuth
 			: config.server.cache.cacheControlHeader,
 		'X-Content-Type-Options': 'nosniff',
-		Vary: 'Accept-Encoding',
+		Vary: auth ? 'Accept-Encoding, Authorization' : 'Accept-Encoding',
 	}
 	if (etag) headers['ETag'] = etag
 	if (last_modified) headers['Last-Modified'] = last_modified

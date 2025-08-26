@@ -7,6 +7,11 @@ import fs from 'node:fs/promises'
 import * as errors from '../errors'
 import { logger } from '@/core'
 
+/**
+ * Create "ETag" and "Last-Modified" HTTP header for cache control.
+ * @param file - Requested file (absolute path).
+ * @returns Object containing etag and last-modified header.
+ */
 export async function getCacheHeader(file: string): Promise<http.OutgoingHttpHeaders | undefined> {
 	try {
 		if (!file || file.includes('\0') || !path.isAbsolute(file)) return undefined
@@ -22,6 +27,12 @@ export async function getCacheHeader(file: string): Promise<http.OutgoingHttpHea
 	}
 }
 
+/**
+ * Check if the requested file has been modified or if the client has an up-to-date version.
+ * @param requestHeaders - The header of the client request
+ * @param requestHresponseHeaderseaders - The "ETag" and "Lst-Modified" header returned ba getCacheHeader()
+ * @returns True if file has not been modified, else false.
+ */
 export function hasNotModified(
 	requestHeaders: http.OutgoingHttpHeaders | undefined,
 	responseHeaders: http.OutgoingHttpHeaders | undefined,
