@@ -34,6 +34,6 @@ RUN mkdir -p ./public && chown -R node:node /app
 USER node
 
 EXPOSE 3000
-VOLUME ["/app/public"]
+VOLUME ["/app/public", "/app/filter", "/app/logs"]
 
 CMD ["node","dist/server.js"]

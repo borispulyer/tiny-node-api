@@ -1,0 +1,11 @@
+name: tiny-static-api
+version: 1
+
+# Merge an object from another file into this branch
+database: !include ./partials/database.yaml
+
+# Include inside arrays
+features:
+  - name: core
+  - !include ./partials/feature-logging.yaml
+  - !include ./partials/feature-auth.yaml

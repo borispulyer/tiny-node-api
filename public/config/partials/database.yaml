@@ -1,0 +1,3 @@
+driver: postgres
+host: db.example.local
+port: 5432

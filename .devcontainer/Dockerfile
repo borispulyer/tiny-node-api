@@ -1,6 +1,6 @@
 FROM node:24-alpine
 
-# Git
+# Apps
 RUN apk add --no-cache git openssh
 
 USER node
