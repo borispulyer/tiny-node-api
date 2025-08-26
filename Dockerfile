@@ -27,6 +27,8 @@ WORKDIR /app
 
 COPY package*.json ./
 COPY --from=build /app/dist ./dist
+COPY filter ./filter
+COPY public ./public
 
 RUN npm ci --omit=dev
 RUN mkdir -p ./public && chown -R node:node /app
