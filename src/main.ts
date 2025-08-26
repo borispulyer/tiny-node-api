@@ -2,8 +2,7 @@
  * Imports
  */
 import 'dotenv/config'
-import * as errors from '@/errors'
-import { server } from '@/server'
+import * as Server from '@/server'
 import { config, checkConfig, logger, welcome } from '@/core'
 
 /*
@@ -24,7 +23,7 @@ process.on('uncaughtException', (error) => {
 try {
 	await checkConfig()
 } catch (error: any) {
-	if (error instanceof errors.ConfigurationError) {
+	if (error instanceof Server.ConfigurationError) {
 		logger.error({ module: 'main', error })
 		process.exit(1)
 	}
@@ -35,7 +34,7 @@ try {
  */
 
 // Start HTTP server
-server.listen(config.server.port, () => {
+Server.server.listen(config.server.port, () => {
 	welcome.print()
 	logger.info({ module: 'server' }, `Server started at http://localhost:${config.server.port}`)
 	logger.trace({ module: 'server', config }, `Configuration`)

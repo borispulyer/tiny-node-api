@@ -3,8 +3,9 @@
  */
 import http from 'node:http'
 import fs from 'node:fs/promises'
+import { JWTPayload } from 'jose'
 import * as modules from './modules'
-import * as errors from '@/errors'
+import * as errors from './errors'
 import { config, url, logger } from '@/core'
 
 /**
@@ -35,13 +36,14 @@ export const server = http
 			}
 
 			// Handle Authentication
-			await modules.auth(request)
+			const auth = await modules.auth(request)
 
 			// Handle locations after authentication
 			const location_postAuth =
-				(await modules.endpoints(pathname)) ?? (await modules.filesystem(pathname))
+				(await modules.endpoints(pathname, request)) ??
+				(await modules.filesystem(pathname, request))
 			if (location_postAuth) {
-				await createResponse(location_postAuth, { request, response })
+				await createResponse(location_postAuth, { request, response, auth })
 				return
 			}
 
@@ -51,6 +53,11 @@ export const server = http
 			if (error instanceof errors.ConfigurationError) {
 				logger.error({ module: 'server', error })
 				response.writeHead(500).end('Error 500 - Internal server error.')
+				return
+			}
+			if (error instanceof errors.HttpNotModifiedError) {
+				logger.debug({ module: 'server', error })
+				response.writeHead(304, error.headers).end()
 				return
 			}
 			if (error instanceof errors.HttpError) {
@@ -96,36 +103,23 @@ server.maxRequestsPerSocket = config.server.maxRequestsPerSocket
  * @returns The response object.
  */
 async function createResponse(
-	payload: { content: any; mime: string; file?: string } | undefined,
-	server: { request: http.IncomingMessage; response: http.ServerResponse },
+	payload: { content: any; mime: string; etag?: string; last_modified?: string } | undefined,
+	server: { request: http.IncomingMessage; response: http.ServerResponse; auth?: JWTPayload },
 ): Promise<http.ServerResponse> {
 	if (!payload) return server.response
-	const { content, mime = 'text/plain', file } = payload
-	const { request, response } = server
+	const { content, mime = 'text/plain', etag, last_modified } = payload
+	const { request, response, auth } = server
 
-	const headers: Record<string, string> = {
+	const headers: http.OutgoingHttpHeaders = {
 		'Content-Type': `${mime}`,
+		'Cache-Control': auth
+			? config.server.cache.cacheControlHeaderAuth
+			: config.server.cache.cacheControlHeader,
 		'X-Content-Type-Options': 'nosniff',
-		'Cache-Control': 'stale-while-revalidate=300, stale-if-error=3600',
 		Vary: 'Accept-Encoding',
 	}
-
-	if (file) {
-		const fsStats = await fs.stat(file).catch(() => null)
-		if (fsStats?.isFile()) {
-			headers['ETag'] = `W/"${Math.trunc(fsStats.mtimeMs)}-${fsStats.size}"`
-			headers['Last-Modified'] = new Date(fsStats.mtimeMs).toUTCString()
-
-			if (request.headers['if-none-match'] === headers['ETag']) {
-				return response.writeHead(304, headers).end()
-			}
-
-			const ims = request.headers['if-modified-since']
-			if (ims && new Date(ims).getTime() >= fsStats.mtimeMs) {
-				return response.writeHead(304, headers).end()
-			}
-		}
-	}
+	if (etag) headers['ETag'] = etag
+	if (last_modified) headers['Last-Modified'] = last_modified
 
 	return response.writeHead(200, headers).end(content)
 }

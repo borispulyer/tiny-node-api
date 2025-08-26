@@ -2,7 +2,7 @@
  * Imports
  */
 import path from 'node:path'
-import * as errors from '@/errors'
+import * as errors from '@/server/errors'
 import { configDefaults, configTypes, parsers, objects, types, files } from '@/core'
 import { isFormatterRegistered } from '@/formatter'
 import { isModifierRegistered } from '@/modifier'
@@ -34,6 +34,10 @@ const env: types.DeepPartial<configTypes.Config> = {
 			heartbeat: parsers.parseBool(process.env.SERVER_LOCATIONS_HEARTBEAT),
 			endpoints: parsers.parseBool(process.env.SERVER_LOCATIONS_ENDPOINTS),
 			filesystem: parsers.parseBool(process.env.SERVER_LOCATIONS_FILESYSTEM),
+		},
+		cache: {
+			cacheControlHeader: parsers.parseString(process.env.SERVER_CACHE_HEADER),
+			cacheControlHeaderAuth: parsers.parseString(process.env.SERVER_CACHE_HEADER_AUTH),
 		},
 		timeouts: {
 			socket: parsers.parseNum(process.env.SERVER_TIMEOUTS_SOCKET),

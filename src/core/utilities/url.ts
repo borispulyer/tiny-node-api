@@ -3,7 +3,7 @@
  */
 import path from 'node:path'
 import { URL } from 'node:url'
-import * as errors from '@/errors'
+import * as Server from '@/server'
 import { logger } from '@/core'
 
 /**
@@ -18,6 +18,6 @@ export function getPathname(url: string | undefined): string {
 		return path.posix.normalize(decodeURIComponent(pathname).replace(/\\/g, '/'))
 	} catch (error: any) {
 		logger.debug({ module: 'utils/url', error })
-		throw new errors.HttpError('Bad request', 400)
+		throw new Server.HttpError('Bad request', 400)
 	}
 }

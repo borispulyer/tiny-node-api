@@ -21,6 +21,10 @@ export const defaults: configTypes.Config = {
 			endpoints: true,
 			filesystem: true,
 		},
+		cache: {
+			cacheControlHeader: 'stale-while-revalidate=300, stale-if-error=3600',
+			cacheControlHeaderAuth: 'no-cache',
+		},
 		timeouts: {
 			socket: 5_000,
 			keepAlive: 75_000,

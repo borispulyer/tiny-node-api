@@ -1,11 +1,13 @@
 /*
  * Imports
  */
+import http from 'node:http'
 import path from 'node:path'
 import * as Parser from '@/parser'
 import * as Modifier from '@/modifier'
 import * as Formatter from '@/formatter'
-import * as errors from '@/errors'
+import * as errors from '../errors'
+import { getCacheHeader, hasNotModified } from './'
 import { config, logger, files } from '@/core'
 
 /**
@@ -15,6 +17,7 @@ import { config, logger, files } from '@/core'
  */
 export async function filesystem(
 	pathname: string,
+	request: http.IncomingMessage,
 ): Promise<{ content: any; mime: string; file?: string } | undefined> {
 	logger.trace(
 		{ module: 'location/filesystem', pathname },
@@ -39,6 +42,11 @@ export async function filesystem(
 		{ module: 'location/filesystem', source_file },
 		`Module is responsible for current request. Handling request...`,
 	)
+
+	// Check cache headers
+	const cacheHeaders = await getCacheHeader(source_file)
+	if (hasNotModified(request.headers, cacheHeaders))
+		throw new errors.HttpNotModifiedError(cacheHeaders)
 
 	// Get style of output format
 	let style = path.extname(pathname).toLowerCase().replace(/^\./, '')
@@ -102,7 +110,8 @@ export async function filesystem(
 	const result = {
 		content: data.content,
 		mime: data.mime,
-		file: source_file,
+		etag: cacheHeaders?.etag,
+		lastModified: cacheHeaders?.['last-modified'],
 	}
 	logger.trace({ module: 'location/filesystem', result }, `Request successfully handled.`)
 	return result

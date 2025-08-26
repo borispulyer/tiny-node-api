@@ -22,6 +22,14 @@ export class HttpError extends Error {
 	}
 }
 
+export class HttpNotModifiedError extends HttpError {
+	public constructor(headers?: http.OutgoingHttpHeaders | http.OutgoingHttpHeader[]) {
+		super()
+		this.name = this.constructor.name
+		this.headers = headers
+	}
+}
+
 export class ConfigurationError extends Error {
 	public config: any
 

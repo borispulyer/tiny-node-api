@@ -3,7 +3,7 @@
  */
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
-import * as errors from '@/errors'
+import * as Server from '@/server'
 import { logger, files } from '@/core'
 
 /*
@@ -31,7 +31,7 @@ export async function getFilterFn(file: string): Promise<FilterFn | undefined> {
 
 		// ...otherwise load from file
 		if (!(await files.isFileWithinRoot(file, 'filter'))) {
-			throw new errors.ConfigurationError(
+			throw new Server.ConfigurationError(
 				`Module "${file}" is not within module root folder.`,
 			)
 		}
@@ -40,12 +40,12 @@ export async function getFilterFn(file: string): Promise<FilterFn | undefined> {
 			_cacheFilterFn.set(file, module.default)
 			return module.default
 		} else {
-			throw new errors.ConfigurationError(
+			throw new Server.ConfigurationError(
 				`Module "${file}" has no filter function as default export.`,
 			)
 		}
 	} catch (error: any) {
 		logger.debug({ module: 'utils/imports', error })
-		throw new errors.ConfigurationError(`${error.message}`)
+		throw new Server.ConfigurationError(`${error.message}`)
 	}
 }

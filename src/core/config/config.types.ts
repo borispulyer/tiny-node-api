@@ -13,6 +13,10 @@ export interface Config {
 			endpoints: boolean
 			filesystem: boolean
 		}
+		cache: {
+			cacheControlHeader: string
+			cacheControlHeaderAuth: string
+		}
 		timeouts: {
 			socket: number
 			keepAlive: number

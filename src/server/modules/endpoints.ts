@@ -1,11 +1,13 @@
 /*
  * Imports
  */
+import http from 'node:http'
 import path from 'node:path'
 import * as Parser from '@/parser'
 import * as Modifier from '@/modifier'
 import * as Formatter from '@/formatter'
-import * as errors from '@/errors'
+import * as errors from '../errors'
+import { getCacheHeader, hasNotModified } from './'
 import { config, logger, imports } from '@/core'
 
 /*
@@ -59,6 +61,7 @@ const _indexEndpoints = (() => {
  */
 export async function endpoints(
 	pathname: string,
+	request: http.IncomingMessage,
 ): Promise<{ content: any; mime: string; file?: string } | undefined> {
 	logger.trace(
 		{ module: 'location/endpoints', pathname },
@@ -81,6 +84,11 @@ export async function endpoints(
 
 	const { endpoint, params } = requested_endpoint
 	const file = path.resolve(config.server.path.public, endpoint.file)
+
+	// Check cache headers
+	const cacheHeaders = await getCacheHeader(file)
+	if (hasNotModified(request.headers, cacheHeaders))
+		throw new errors.HttpNotModifiedError(cacheHeaders)
 
 	// Get style of output format
 	let style = endpoint.format ?? path.extname(endpoint.file).toLowerCase().replace(/^\./, '')
@@ -163,7 +171,8 @@ export async function endpoints(
 	const result = {
 		content: data.content,
 		mime: data.mime,
-		file: file,
+		etag: cacheHeaders?.etag,
+		lastModified: cacheHeaders?.['last-modified'],
 	}
 	logger.trace({ module: 'location/endpoints', result }, `Request successfully handled.`)
 	return result

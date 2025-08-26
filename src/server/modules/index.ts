@@ -2,8 +2,9 @@
  * Server Modules
  */
 
-// Authentication
+// General
 export * from './auth'
+export * from './cache'
 
 // Locations
 export * from './heartbeat'
