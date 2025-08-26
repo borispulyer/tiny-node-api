@@ -87,14 +87,14 @@ Minimal `docker-compose.yml` example:
 services:
   tiny-node-api:
     build:
-      context: "https://github.com/borispulyer/tiny-node-api.git"
+      context: 'https://github.com/borispulyer/tiny-node-api.git'
       # ... or build from local
-	  #context: .
-      dockerfile: "./Dockerfile"
-    container_name: "tiny-node-api"
-    restart: "unless-stopped"
+      #context: .
+      dockerfile: './Dockerfile'
+    container_name: 'tiny-node-api'
+    restart: 'unless-stopped'
     security_opt:
-      - "no-new-privileges:true"
+      - 'no-new-privileges:true'
     healthcheck:
       test:
         - CMD-SHELL
@@ -109,27 +109,26 @@ services:
       retries: 5
       start_period: 10s
     ports:
-      - "3000:3000"
+      - '3000:3000'
     volumes:
-      - "./public:/app/public:ro"
-      - "./filter:/app/filter:ro"
-      - "./logs:/app/logs"
-	environment:
-    	ENDPOINTS:
-			'[
-				{
-					"enable": true,
-					"path": "/api/v1/users",
-					"file": "data/users.yaml",
-					"format": "json"
-				}, {
-					"enable": true,
-					"path": "/api/v1/users/{id}",
-					"file": "data/users.yaml",
-					"format": "json",
-					"filter": "userById.js"
-				}
-			]'
+      - './public:/app/public:ro'
+      - './filter:/app/filter:ro'
+      - './logs:/app/logs'
+    environment:
+      ENDPOINTS: '[
+        {
+        "enable": true,
+        "path": "/api/v1/users",
+        "file": "data/users.yaml",
+        "format": "json"
+        }, {
+        "enable": true,
+        "path": "/api/v1/users/{id}",
+        "file": "data/users.yaml",
+        "format": "json",
+        "filter": "userById.js"
+        }
+        ]'
 ```
 
 **Build and run**
@@ -361,21 +360,21 @@ Expose files as user defined endpoints and optionally run custom JavaScript filt
 
 ```jsonc
 [
-	{
-		// MUST be true to activate (if omitted, treated as disabled)
-		"enable": true,
-		// Request path; named params allowed via {param}
-		"path": "/api/v1/users/{id}",
-		// File to serve as the endpoint. Resolved under SERVER_PATH_PUBLIC. Might be outside of SERVER_PATH_PUBLIC.
-		"file": "./users.yaml",
-		// Optional: "json" | "yaml" | "js". If omitted, taken from file extension of the server request; if unknown, fallback to FORMATTER_DEFAULT.
-		"format": "json",
-		// Optional: path to a JavaScript filter file. Throws an error, if the file is not within SERVER_PATH_FILTER; relative locations are resolved under SERVER_PATH_FILTER
-		"filter": "./userById.js",
-	},
-	{
-		...
-	}
+  {
+    // MUST be true to activate (if omitted, treated as disabled)
+    "enable": true,
+    // Request path; named params allowed via {param}
+    "path": "/api/v1/users/{id}",
+    // File to serve as the endpoint. Resolved under SERVER_PATH_PUBLIC. Might be outside of SERVER_PATH_PUBLIC.
+    "file": "./users.yaml",
+    // Optional: "json" | "yaml" | "js". If omitted, taken from file extension of the server request; if unknown, fallback to FORMATTER_DEFAULT.
+    "format": "json",
+    // Optional: path to a JavaScript filter file. Throws an error, if the file is not within SERVER_PATH_FILTER; relative locations are resolved under SERVER_PATH_FILTER
+    "filter": "./userById.js",
+  },
+  {
+    // ...
+  },
 ]
 ```
 
@@ -914,14 +913,14 @@ You can use the provided `Dockerfile` to build and run a Docker image.
 services:
   tiny-node-api:
     build:
-      context: "https://github.com/borispulyer/tiny-node-api.git"
+      context: 'https://github.com/borispulyer/tiny-node-api.git'
       # ... or build from local
-	  #context: .
-      dockerfile: "./Dockerfile"
-    container_name: "tiny-node-api"
-    restart: "unless-stopped"
+      #context: .
+      dockerfile: './Dockerfile'
+    container_name: 'tiny-node-api'
+    restart: 'unless-stopped'
     security_opt:
-      - "no-new-privileges:true"
+      - 'no-new-privileges:true'
     healthcheck:
       test:
         - CMD-SHELL
@@ -936,13 +935,13 @@ services:
       retries: 5
       start_period: 10s
     ports:
-      - "3000:3000"
+      - '3000:3000'
     volumes:
-      - "./public:/app/public:ro"
-      - "./filter:/app/filter:ro"
-      - "./logs:/app/logs"
+      - './public:/app/public:ro'
+      - './filter:/app/filter:ro'
+      - './logs:/app/logs'
     #env_file: ".env"
-	environment:
+    environment:
       ###
       #	Server configuration
       ###
