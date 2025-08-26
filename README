@@ -1,4 +1,4 @@
-# tiny-static-api
+# tiny-node-api
 
 A lightweight, configurable static API server that turns files in text-based data serilization formats (JSON, YAML) into HTTP endpoints. It can serve files directly from the **filesystem**, expose **declarative endpoints**, optionally run **filter functions** over the data, and secure requests with **OAuth2/JWT** validation. It allows to **merge** multiple files into one single files, e.g. to split configuration files in managable chunks and serve them as a single file. Logging is split into **HTTP access logs** and **application logs**.
 
@@ -49,8 +49,8 @@ Clone, install, build, and run the server directly with Node.js.
 
 ```bash
 # Clone this repository
-git clone https://github.com/borispulyer/tiny-static-api.git
-cd tiny-static-api
+git clone https://github.com/borispulyer/tiny-node-api.git
+cd tiny-node-api
 
 # Install dependencies
 npm ci
@@ -85,13 +85,13 @@ Minimal `docker-compose.yml` example:
 
 ```yaml
 services:
-  tiny-static-api:
+  tiny-node-api:
     build:
-      context: "https://github.com/borispulyer/tiny-static-api.git"
+      context: "https://github.com/borispulyer/tiny-node-api.git"
       # ... or build from local
 	  #context: .
       dockerfile: "./Dockerfile"
-    container_name: "tiny-static-api"
+    container_name: "tiny-node-api"
     restart: "unless-stopped"
     security_opt:
       - "no-new-privileges:true"
@@ -438,7 +438,7 @@ Use the `!include` tag anywhere a value is expected. The path is resolved **rela
 
 ```yaml
 # public/config/app.yaml
-name: tiny-static-api
+name: tiny-node-api
 version: 1
 
 # Merge an object from another file into this branch
@@ -472,7 +472,7 @@ Use an object with an `__include__` property whose value is a string path. The p
 
 ```json
 {
-  "name": "tiny-static-api",
+  "name": "tiny-node-api",
   "version": 1,
   "database": { "__include__": "./partials/database.json" },
   "features": [{ "name": "core" }, { "__include__": "./partials/feature-logging.json" }]
@@ -867,7 +867,7 @@ export default function paginate(data, params) {
 
 # NGINX reverse-proxy configurations
 
-The tiny-static-api server might run behind a reverse-proxy like NGINX. The following NGINX example configurations proxy to a local instance on `localhost:3000`. Adjust as needed.
+The tiny-node-api server might run behind a reverse-proxy like NGINX. The following NGINX example configurations proxy to a local instance on `localhost:3000`. Adjust as needed.
 
 ## Forward everything under `/api`
 
@@ -912,13 +912,13 @@ You can use the provided `Dockerfile` to build and run a Docker image.
 
 ```yaml
 services:
-  tiny-static-api:
+  tiny-node-api:
     build:
-      context: "https://github.com/borispulyer/tiny-static-api.git"
+      context: "https://github.com/borispulyer/tiny-node-api.git"
       # ... or build from local
 	  #context: .
       dockerfile: "./Dockerfile"
-    container_name: "tiny-static-api"
+    container_name: "tiny-node-api"
     restart: "unless-stopped"
     security_opt:
       - "no-new-privileges:true"
@@ -1076,7 +1076,7 @@ services:
 
 ## With NGINX
 
-You can deploy the tiny-static-api with NGINX in a single `docker-compose.yaml`:
+You can deploy the tiny-node-api with NGINX in a single `docker-compose.yaml`:
 
 ```yaml
 services:
@@ -1086,7 +1086,7 @@ services:
     container_name: 'nginx'
     restart: 'unless-stopped'
     depends_on:
-      tiny-static-api:
+      tiny-node-api:
         condition: 'service_healthy'
     security_opt:
       - 'no-new-privileges:true'
@@ -1098,14 +1098,14 @@ services:
       - './public:/usr/share/nginx/html:ro'
       - './nginx/config:/etc/nginx:ro'
 
-  # tiny-static-api
-  tiny-static-api:
+  # tiny-node-api
+  tiny-node-api:
     build:
-      context: 'https://github.com/borispulyer/tiny-static-api.git'
+      context: 'https://github.com/borispulyer/tiny-node-api.git'
       # ... or build from local
       #context: .
       dockerfile: './Dockerfile'
-    container_name: 'tiny-static-api'
+    container_name: 'tiny-node-api'
     restart: 'unless-stopped'
     security_opt:
       - 'no-new-privileges:true'

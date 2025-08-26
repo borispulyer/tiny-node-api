@@ -1,7 +1,7 @@
 {
-  "name": "tiny-static-api",
+  "name": "tiny-node-api",
   "version": "0.0.1",
-  "description": "A tiny NodeJS server for config files like YAML or JSON. Supports merging multiple config files into one.",
+  "description": "A lightweight, configurable static API server that turns files (JSON, YAML) into HTTP endpoints. It can merge multiple files, run custom filter functions and supports OAuth2/JWT.",
   "keywords": [
     "server",
     "yaml",

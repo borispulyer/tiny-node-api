@@ -1,5 +1,5 @@
 {
-  "name": "tiny-static-api",
+  "name": "tiny-node-api",
   "version": 1,
   "database": { "__include__": "./partials/database.json" },
   "features": [{ "name": "core" }, { "__include__": "./partials/feature-logging.json" }]

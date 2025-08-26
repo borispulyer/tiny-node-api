@@ -2,21 +2,20 @@
 # Development Container
 ##
 services:
-
   # Development Container
-  dev-tiny-static-api:
+  dev-tiny-node-api:
     build:
-      context: "../"
-      dockerfile: "./.devcontainer/Dockerfile"
-    container_name: "dev-tiny-static-api"
-    restart: "unless-stopped"
+      context: '../'
+      dockerfile: './.devcontainer/Dockerfile'
+    container_name: 'dev-tiny-node-api'
+    restart: 'unless-stopped'
     security_opt:
-      - "no-new-privileges:true"
+      - 'no-new-privileges:true'
     volumes:
-      - "../:/workspace"
-      - "node_modules:/workspace/node_modules"
+      - '../:/workspace'
+      - 'node_modules:/workspace/node_modules'
     environment:
-      TZ: "Europe/Berlin"
+      TZ: 'Europe/Berlin'
 
 ##
 # Volumes

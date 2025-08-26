@@ -1,4 +1,4 @@
-name: tiny-static-api
+name: tiny-node-api
 version: 1
 
 # Merge an object from another file into this branch
