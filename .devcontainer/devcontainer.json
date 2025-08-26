@@ -3,12 +3,14 @@
   "dockerComposeFile": "compose.yaml",
   "service": "dev-tiny-node-api",
   "workspaceFolder": "/workspace",
+  "remoteUser": "node",
   "customizations": {
     "vscode": {
       "extensions": ["dbaeumer.vscode-eslint", "esbenp.prettier-vscode"]
     }
   },
   "forwardPorts": [3000],
+  "postCreateCommand": "sh -lc 'git config --global user.name \"${containerEnv:GIT_USER_NAME}\" && git config --global user.email \"${containerEnv:GIT_USER_EMAIL}\"'",
   // "postStartCommand": "npm run start",
   "shutdownAction": "stopCompose"
   // "shutdownAction": "none"
