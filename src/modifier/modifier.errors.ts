@@ -8,6 +8,13 @@ export class ModifierError extends Error {
 	}
 }
 
+export class ModifierConfigurationError extends ModifierError {
+	public constructor(message: string) {
+		super(message)
+		this.name = this.constructor.name
+	}
+}
+
 export class ModifierMissingError extends ModifierError {
 	public constructor(message: string) {
 		super(message)

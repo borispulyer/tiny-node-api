@@ -1,5 +1,6 @@
 /*
  * Logger
  */
-export * as logger from './logger'
-export * as welcome from './welcome'
+export * from './logger'
+export * from './welcome'
+export type * as LoggerTypes from './logger.types'

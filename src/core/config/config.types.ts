@@ -1,6 +1,15 @@
-/**
+/*
+ * Imports
+ */
+import { UtilTypes } from '@/core'
+
+/*
  * Config Type Definition
  */
+export type ConstructorCtx = {}
+export type ConstructorSetup = {
+	config: Config
+}
 export interface Config {
 	server: {
 		port: number
@@ -95,5 +104,5 @@ export interface Config {
 		}
 	}
 }
-
 export type LogLevel = 'silent' | 'fatal' | 'error' | 'warn' | 'info' | 'debug' | 'trace'
+export type ConfigPartial = UtilTypes.DeepPartial<Config>

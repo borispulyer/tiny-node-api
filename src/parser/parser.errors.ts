@@ -8,6 +8,13 @@ export class ParserError extends Error {
 	}
 }
 
+export class ParserConfigurationError extends ParserError {
+	public constructor(message: string) {
+		super(message)
+		this.name = this.constructor.name
+	}
+}
+
 export class ParserMissingError extends ParserError {
 	public constructor(message: string) {
 		super(message)

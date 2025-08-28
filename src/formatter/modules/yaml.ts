@@ -2,7 +2,7 @@
  * Imports
  */
 import yaml from 'yaml'
-import type { Formatter } from '.'
+import type * as Types from '../formatter.types'
 
 /**
  * YAML Formatter
@@ -13,4 +13,4 @@ export default {
 	fn: async (data: any): Promise<string> => {
 		return yaml.stringify(data)
 	},
-} satisfies Formatter
+} satisfies Types.FormatterModules

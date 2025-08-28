@@ -3,10 +3,10 @@
  */
 
 // General
-export * from './auth'
-export * from './cache'
+export * as auth from './auth'
+export * as cache from './cache'
 
 // Locations
-export * from './heartbeat'
-export * from './endpoints'
-export * from './filesystem'
+export * as heartbeat from './heartbeat'
+export * as endpoints from './endpoints'
+export * as filesystem from './filesystem'

@@ -1,25 +1,26 @@
 /*
  * Imports
  */
-import { config, logger } from '@/core'
+import type * as Types from '../server.types'
 
 /**
  * Handle heartbeat requests and respond with a simple message.
  * @param pathname - Requested URL pathname.
  * @returns Heartbeat payload or undefined if not responsible.
  */
-export async function heartbeat(
+export async function run(
 	pathname: string,
+	ctx: Types.ConstructorCtx,
 ): Promise<{ content: any; mime: string; file?: string } | undefined> {
-	logger.trace(
+	ctx.logger.trace(
 		{ module: 'location/heartbeat', pathname },
 		`Checking responsibility for current request...`,
 	)
 	// Check Responsibility
-	if (!config.server.locations.heartbeat) return undefined
+	if (!ctx.config.server.locations.heartbeat) return undefined
 	if (!pathname.startsWith('/_heartbeat')) return undefined
 
-	logger.trace(
+	ctx.logger.trace(
 		{ module: 'location/heartbeat' },
 		`Module is responsible for current request. Handling request...`,
 	)
@@ -29,6 +30,6 @@ export async function heartbeat(
 		content: '❤',
 		mime: 'text/plain',
 	}
-	logger.trace({ module: 'location/heartbeat', result }, `Request successfully handled.`)
+	ctx.logger.trace({ module: 'location/heartbeat', result }, `Request successfully handled.`)
 	return result
 }

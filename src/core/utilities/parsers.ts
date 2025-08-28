@@ -1,7 +1,7 @@
 /*
  * Imports
  */
-import { configTypes } from '@/core'
+import { ConfigTypes } from '@/core'
 
 /**
  * Parse a string into a boolean value.
@@ -53,11 +53,11 @@ export function parseString(value: unknown): string | undefined {
  * @param value - Input value to parse.
  * @returns Log level or undefined if invalid.
  */
-export function parseLogLevel(value: unknown): configTypes.LogLevel | undefined {
+export function parseLogLevel(value: unknown): ConfigTypes.LogLevel | undefined {
 	if (typeof value !== 'string') return undefined
 	const str = value.trim().toLocaleLowerCase()
 	if (['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'].includes(str))
-		return str as configTypes.LogLevel
+		return str as ConfigTypes.LogLevel
 	return undefined
 }
 

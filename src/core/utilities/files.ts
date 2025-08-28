@@ -3,21 +3,25 @@
  */
 import path from 'node:path'
 import fs from 'node:fs/promises'
-import { config, logger } from '@/core'
 
 /**
  * Check whether a file resides inside a configured root directory. It does not validate symlinks.
  * @param file - Absolute path of the file to inspect.
- * @param id - Key of the root directory within configuration.
+ * @param root - Absolute path of the root directory.
  * @returns True if file is inside the root directory, otherwise false.
  */
-export async function isFileWithinRoot(
-	file: string,
-	id: keyof typeof config.server.path = 'public',
-): Promise<boolean> {
+export async function isFileWithinRoot(file: string, root: string): Promise<boolean> {
 	try {
-		if (!file || file.includes('\0') || !path.isAbsolute(file)) return false
-		const relative = path.relative(config.server.path[id], file)
+		if (
+			!file ||
+			!root ||
+			file.includes('\0') ||
+			root.includes('\0') ||
+			!path.isAbsolute(file) ||
+			!path.isAbsolute(root)
+		)
+			return false
+		const relative = path.relative(root, file)
 		if (
 			relative === '' ||
 			(relative !== '..' &&
@@ -28,7 +32,6 @@ export async function isFileWithinRoot(
 		}
 		return false
 	} catch (error: any) {
-		logger.debug({ module: 'utils/files', error })
 		if (error?.code === 'ENOENT') {
 			return false
 		}

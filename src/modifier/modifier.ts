@@ -1,82 +1,111 @@
 /*
  * Imports
  */
+import * as Modules from './modules'
+import * as Errors from './modifier.errors'
+import type * as Types from './modifier.types'
 
-import * as modifiers from './modules'
-import * as errors from './errors'
-import { logger } from '../core'
+export class Modifier {
+	private _ctx
+	private _index
+	private _errors
 
-/*
- * Definitions
- */
-
-// Create a Map of all available modifiers
-const _indexModifiers: Map<string, modifiers.Modifier> = (() => {
-	const map: Map<string, modifiers.Modifier> = new Map()
-	for (const modifier of Object.values(modifiers)) {
-		const sel = modifier.selector.toLowerCase()
-		if (map.has(sel)) {
-			throw new errors.ModifierError(`Duplicate modifier for selector "${sel}" detected.`)
-		}
-		map.set(sel, modifier)
+	get ['errors']() {
+		return this._errors
 	}
-	return map
-})()
 
-/**
- * Apply one or more modifiers to a JavaScript object.
- * @param data - Data object to modify.
- * @param selector - Modifier identifier or list of identifiers.
- * @param base_dir - Base directory for file-based modifiers.
- * @returns Modified data object.
- */
-export async function modify(
-	data: any,
-	selector: string | string[] | null,
-	base_dir: string,
-): Promise<any> {
-	logger.trace({ module: 'modifier', data, selector, base_dir }, `Starting modifier...`)
-	const selectors = Array.isArray(selector) ? selector : [selector]
-	for (const selector of selectors) {
+	private constructor(ctx: Types.ConstructorCtx, setup: Types.ConstructorSetup) {
+		this._ctx = ctx
+		this._index = setup.index
+		this._errors = Errors
+	}
+
+	public static async init(ctx: Types.InitCtx): Promise<Modifier> {
+		const index = await Modifier._createIndex()
+		return new Modifier(
+			{
+				config: { server: { path: { public: ctx.config.server.path.public } } },
+				logger: ctx.logger,
+				parser: ctx.parser,
+			},
+			{ index },
+		)
+	}
+
+	/**
+	 * Apply one or more modifiers to a JavaScript object.
+	 * @param data - Data object to modify.
+	 * @param selector - Modifier identifier or list of identifiers.
+	 * @param base_dir - Base directory for file-based modifiers.
+	 * @returns Modified data object.
+	 */
+	public async run(
+		data: any,
+		selector: string | string[] | null,
+		base_dir: string,
+	): Promise<any> {
 		try {
-			if (!selector) continue
-			const modifier = _indexModifiers.get(selector.toLowerCase().trim())
-			if (!modifier) {
-				throw new errors.ModifierMissingError(`No modifier for '${selector}' available.`)
+			this._ctx.logger.trace(
+				{ module: 'modifier', data, selector, base_dir },
+				`Starting modifier...`,
+			)
+			const selectors = Array.isArray(selector) ? selector : [selector]
+			for (const selector of selectors) {
+				if (!selector) continue
+				const modifier = this._index.get(selector.toLowerCase().trim())
+				if (!modifier) {
+					throw new Errors.ModifierMissingError(
+						`No modifier for '${selector}' available.`,
+					)
+				}
+				data = await modifier.fn(data, { baseDir: base_dir }, this._ctx)
+				this._ctx.logger.trace({ module: 'modifier', result: data }, `Modifier successful.`)
 			}
-			data = await modifier.fn(data, { baseDir: base_dir })
-			logger.trace({ module: 'modifier', result: data }, `Modifier successful.`)
+			return data
 		} catch (error: any) {
-			logger.debug({ module: 'modifier', error })
-			if (error instanceof errors.ModifierError) {
+			this._ctx.logger.debug({ module: 'modifier', error })
+			if (error instanceof Errors.ModifierError) {
 				throw error
 			}
-			throw new errors.ModifierError(`Modifier failed: ${error.message}`)
+			throw new Errors.ModifierError(`Modifier failed: ${error.message}`)
 		}
 	}
-	return data
-}
 
-/**
- * Check whether a modifier exists for a selector.
- * @param selector - Modifier selector to check.
- * @returns True if modifier is registered.
- */
-export function isModifierRegistered(selector: string): boolean {
-	return _indexModifiers.has(selector.toLowerCase().trim())
-}
-
-/**
- * Retrieve meta information about registered modifier modules.
- * @returns Array of modifier IDs and selectors.
- */
-export function getModules(): { id: string; selector: string }[] {
-	const result = []
-	for (const [key, value] of Object.entries(modifiers)) {
-		result.push({
-			id: key,
-			selector: value.selector,
-		})
+	/**
+	 * Check whether a modifier exists for a selector.
+	 * @param selector - Modifier selector to check.
+	 * @returns True if modifier is registered.
+	 */
+	public isModifierRegistered(selector: string): boolean {
+		return this._index.has(selector.toLowerCase().trim())
 	}
-	return result
+
+	/**
+	 * Retrieve meta information about registered modifier modules.
+	 * @returns Array of modifier IDs and selectors.
+	 */
+	public getModules(): { id: string; selector: string }[] {
+		const result = []
+		for (const [key, value] of Object.entries(Modules)) {
+			result.push({
+				id: key,
+				selector: value.selector,
+			})
+		}
+		return result
+	}
+
+	private static async _createIndex(): Promise<Types.ModifiersIndex> {
+		const index = new Map()
+		for (const modifier of Object.values(Modules)) {
+			const sel = modifier.selector.toLowerCase()
+			if (index.has(sel)) {
+				throw new Errors.ModifierConfigurationError(
+					`Duplicate modifier for selector "${sel}" detected.`,
+				)
+			}
+			index.set(sel, modifier)
+		}
+		return index
+	}
 }

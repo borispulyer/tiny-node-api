@@ -2,7 +2,7 @@
  * Imports
  */
 import fs from 'node:fs/promises'
-import type { Parser } from '.'
+import type * as Types from '../parser.types'
 
 /**
  * JSON Parser
@@ -18,4 +18,4 @@ export default {
 		const content = await fs.readFile(file, { encoding: 'utf8' })
 		return JSON.parse(content)
 	},
-} satisfies Parser
+} satisfies Types.ParserModule

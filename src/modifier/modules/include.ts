@@ -2,11 +2,13 @@
  * Imports
  */
 import path from 'node:path'
-import * as errors from '../errors'
-import * as Parser from '@/parser'
-import { logger, files } from '@/core'
-import type { Modifier } from '.'
+import * as Errors from '../modifier.errors'
+import type * as Types from '../modifier.types'
+import { files } from '@/core'
 
+/**
+ * Include Modifier
+ */
 export default {
 	selector: 'include',
 	/**
@@ -15,7 +17,7 @@ export default {
 	 * @param options - Options containing baseDir for resolving files.
 	 * @returns Data with includes resolved.
 	 */
-	fn: async (data: any, options: any): Promise<any> => {
+	fn: async (data, options, ctx): Promise<any> => {
 		/**
 		 * Recursively walk through data structure and resolve include directives.
 		 * @param node - Current node to process.
@@ -32,26 +34,18 @@ export default {
 			if (typeof node === 'object') {
 				if (typeof node['__include__'] === 'string') {
 					const file = path.resolve(base_dir, node['__include__'])
-					if (!(await files.isFileWithinRoot(file))) {
-						throw new errors.ModifierFileAccesError(
+					if (!(await files.isFileWithinRoot(file, ctx.config.server.path.public))) {
+						throw new Errors.ModifierFileAccesError(
 							`Forbidden: "${file}" is not within server root directory`,
 						)
 					}
 
 					if (seen.has(file)) {
-						throw new errors.ModifierSyntaxError(`Multiple __include__ of "${file}"`)
+						throw new Errors.ModifierSyntaxError(`Multiple __include__ of "${file}"`)
 					}
 					seen.add(file)
 
-					try {
-						return await _walk(await Parser.parse(file), path.dirname(file))
-					} catch (error: any) {
-						logger.debug(error)
-						if (error instanceof Parser.ParserError) {
-							return node
-						}
-						throw error
-					}
+					return await _walk(await ctx.parser.run(file), path.dirname(file))
 				}
 				for (const key of Object.keys(node)) {
 					node[key] = await _walk(node[key], base_dir)
@@ -61,7 +55,7 @@ export default {
 		}
 
 		const seen: Set<string> = new Set<string>()
-		if (!options.baseDir) throw new errors.ModifierError(`options.baseDir is mandatory`)
+		if (!options.baseDir) throw new Errors.ModifierError(`options.baseDir is mandatory`)
 		return await _walk(data, options.baseDir)
 	},
-} satisfies Modifier
+} satisfies Types.ModifierModules

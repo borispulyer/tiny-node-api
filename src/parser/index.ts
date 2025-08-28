@@ -2,4 +2,5 @@
  * Parser
  */
 export * from './parser'
-export * from './errors'
+export * as ParserErrors from './parser.errors'
+export type * as ParserTypes from './parser.errors'

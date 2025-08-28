@@ -2,4 +2,5 @@
  * Formatter
  */
 export * from './formatter'
-export * from './errors'
+export * as FormatterErrors from './formatter.errors'
+export type * as FormatterTypes from './formatter.errors'

@@ -2,14 +2,13 @@
  * Imports
  */
 import path from 'node:path'
-import { configTypes } from '@/core'
-
-const app_root: string = path.resolve(import.meta.dirname, '../../../')
+import type * as Types from './config.types'
 
 /**
  * Default configuration values
  */
-export const defaults: configTypes.Config = {
+const app_root: string = path.resolve(import.meta.dirname, '../../../')
+export const configDefaults: Types.Config = {
 	server: {
 		port: 3000,
 		path: {

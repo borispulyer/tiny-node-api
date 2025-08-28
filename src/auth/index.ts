@@ -2,4 +2,5 @@
  * Auth
  */
 export * from './auth'
-export * from './errors'
+export * as AuthErrors from './auth.errors'
+export type * as AuthTypes from './auth.types'

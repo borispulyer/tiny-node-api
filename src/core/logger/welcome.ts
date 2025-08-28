@@ -2,21 +2,19 @@
  * Imports
  */
 import pkg from '@/../package.json' assert { type: 'json' }
-import * as Parser from '@/parser'
-import * as Modifier from '@/modifier'
-import * as Formatter from '@/formatter'
-import { config } from '@/core'
+import type { BootstrapTypes } from '@/core'
 
 /**
  * Output a formatted welcome message with current configuration details.
  * @returns Void.
  */
-export function print() {
+export function printWelcome(ctx: BootstrapTypes.AppContext) {
 	// Definitions
 	const line = '─'.repeat(60)
-	const parsers = Parser.getModules()
-	const modifiers = Modifier.getModules()
-	const formatters = Formatter.getModules()
+	const config = ctx.config
+	const parsers = ctx.parser.getModules()
+	const modifiers = ctx.modifier.getModules()
+	const formatters = ctx.formatter.getModules()
 	
 	// Start
 	// console.clear()

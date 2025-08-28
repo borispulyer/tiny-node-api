@@ -2,4 +2,5 @@
  * Modifier
  */
 export * from './modifier'
-export * from './errors'
+export * as ModifierErrors from './modifier.errors'
+export type * as ModifierTypes from './modifier.errors'

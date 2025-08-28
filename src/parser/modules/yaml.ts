@@ -3,7 +3,7 @@
  */
 import fs from 'node:fs/promises'
 import yaml from 'yaml'
-import type { Parser } from '.'
+import type * as Types from '../parser.types'
 
 /**
  * YAML Parser
@@ -27,4 +27,4 @@ export default {
 			],
 		})
 	},
-} satisfies Parser
+} satisfies Types.ParserModule

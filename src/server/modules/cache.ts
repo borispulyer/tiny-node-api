@@ -4,8 +4,8 @@
 import http from 'node:http'
 import path from 'node:path'
 import fs from 'node:fs/promises'
-import * as errors from '../errors'
-import { logger } from '@/core'
+import * as Errors from '../server.errors'
+import type * as Types from '../server.types'
 
 /**
  * Create "ETag" and "Last-Modified" HTTP header for cache control.
@@ -13,17 +13,12 @@ import { logger } from '@/core'
  * @returns Object containing etag and last-modified header.
  */
 export async function getCacheHeader(file: string): Promise<http.OutgoingHttpHeaders | undefined> {
-	try {
-		if (!file || file.includes('\0') || !path.isAbsolute(file)) return undefined
-		const fsStats = await fs.stat(file).catch(() => null)
-		if (!fsStats?.isFile()) return undefined
-		return {
-			etag: `W/"${Math.trunc(fsStats.mtimeMs)}-${fsStats.size}"`,
-			'last-modified': new Date(fsStats.mtimeMs).toUTCString(),
-		}
-	} catch (error: any) {
-		logger.debug({ module: 'server/cache', error })
-		throw new errors.HttpError(`Internal server error`, 500)
+	if (!file || file.includes('\0') || !path.isAbsolute(file)) return undefined
+	const fsStats = await fs.stat(file).catch(() => null)
+	if (!fsStats?.isFile()) return undefined
+	return {
+		etag: `W/"${Math.trunc(fsStats.mtimeMs)}-${fsStats.size}"`,
+		'last-modified': new Date(fsStats.mtimeMs).toUTCString(),
 	}
 }
 

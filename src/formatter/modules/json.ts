@@ -1,7 +1,7 @@
 /*
  * Imports
  */
-import type { Formatter } from '.'
+import type * as Types from '../formatter.types'
 
 /**
  * JSON Formatter
@@ -12,4 +12,4 @@ export default {
 	fn: async (data: any): Promise<string> => {
 		return JSON.stringify(data)
 	},
-} satisfies Formatter
+} satisfies Types.FormatterModules

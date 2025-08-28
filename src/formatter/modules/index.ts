@@ -1,14 +1,5 @@
 /*
- * Type Definitions
- */
-export type Formatter = {
-	selectors: string[]
-	mime: string
-	fn: (data: any) => Promise<string>
-}
-
-/*
- * Formatters
+ * Formatters Modules
  */
 export { default as yaml } from './yaml'
 export { default as json } from './json'

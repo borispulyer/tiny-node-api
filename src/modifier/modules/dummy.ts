@@ -1,8 +1,11 @@
 /*
  * Imports
  */
-import type { Modifier } from '.'
+import type * as Types from '../modifier.types'
 
+/**
+ * Dummy Modifier
+ */
 export default {
 	selector: 'dummy',
 	/**
@@ -13,4 +16,4 @@ export default {
 	fn: async (data: any): Promise<any> => {
 		return { message: 'This is a dummy modifier.' }
 	},
-} satisfies Modifier
+} satisfies Types.ModifierModules
