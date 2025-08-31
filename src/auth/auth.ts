@@ -94,8 +94,8 @@ export class Auth {
 	 * @returns Token string if present, otherwise undefined.
 	 */
 	private _getBearerToken(request: http.IncomingMessage): string | null {
-		const token = request?.headers?.authorization?.split(' ')
-		if (token && token[0] === 'Bearer' && token[1]) return token[1]
+		if (request?.headers?.authorization?.startsWith('Bearer '))
+			return request.headers.authorization.slice(7).trim()
 		return null
 	}
 }

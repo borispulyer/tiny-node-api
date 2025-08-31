@@ -1,5 +1,5 @@
 /*
- * Imorts
+ * Imports
  */
 import pino from 'pino'
 import pinoHttp from 'pino-http'

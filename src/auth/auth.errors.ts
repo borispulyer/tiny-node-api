@@ -1,8 +1,4 @@
 /*
- * Imports
- */
-
-/*
  * Type Definitions
  */
 type Header = {
@@ -12,8 +8,8 @@ type Header = {
 	error_description?: string
 }
 
-/*
- * Error Definitions
+/**
+ * Base error for authentication failures, carrying OAuth2 Bearer header data.
  */
 export class AuthError extends Error {
 	public header: Header = {}
@@ -41,6 +37,9 @@ export class AuthError extends Error {
 	}
 }
 
+/**
+ * Thrown when the authentication module is misconfigured.
+ */
 export class AuthConfigurationError extends AuthError {
 	public constructor(message?: string) {
 		super(message)
@@ -50,6 +49,9 @@ export class AuthConfigurationError extends AuthError {
 	}
 }
 
+/**
+ * Thrown when the Authorization header with a bearer token is missing.
+ */
 export class AuthTokenMissingError extends AuthError {
 	public constructor(message?: string) {
 		super(message)
@@ -61,6 +63,9 @@ export class AuthTokenMissingError extends AuthError {
 	}
 }
 
+/**
+ * Thrown when the provided token has expired.
+ */
 export class AuthTokenExpiredError extends AuthError {
 	public constructor(message?: string) {
 		super(message)
@@ -72,6 +77,9 @@ export class AuthTokenExpiredError extends AuthError {
 	}
 }
 
+/**
+ * Thrown when the provided token is invalid for any other reason.
+ */
 export class AuthTokenInvalidError extends AuthError {
 	public constructor(message?: string) {
 		super(message)
@@ -83,6 +91,9 @@ export class AuthTokenInvalidError extends AuthError {
 	}
 }
 
+/**
+ * Thrown when a JWT claim fails validation.
+ */
 export class AuthClaimValidationError extends AuthError {
 	public constructor(message?: string) {
 		super(message)

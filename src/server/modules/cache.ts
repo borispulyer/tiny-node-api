@@ -29,7 +29,7 @@ export async function getCacheHeader(file: string): Promise<http.OutgoingHttpHea
  * @returns True if file has not been modified, else false.
  */
 export function hasNotModified(
-	requestHeaders: http.OutgoingHttpHeaders | undefined,
+	requestHeaders: http.IncomingHttpHeaders | undefined,
 	responseHeaders: http.OutgoingHttpHeaders | undefined,
 ): boolean {
 	if (!requestHeaders || !responseHeaders) return false
