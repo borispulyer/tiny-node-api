@@ -7,21 +7,38 @@ import * as Modules from './modules'
 import * as Errors from './parser.errors'
 import type * as Types from './parser.types'
 
+/**
+ * Parser service that converts source files into JavaScript objects.
+ */
 export class Parser {
 	private _ctx
 	private _index
 	private _errors
 
+	/**
+	 * Exposes the parser error types.
+	 * @returns Error namespace with specific parser errors.
+	 */
 	get ['errors']() {
 		return this._errors
 	}
 
+	/**
+	 * Creates a new parser instance.
+	 * @param ctx - Context with logger.
+	 * @param setup - Setup containing the parser index.
+	 */
 	private constructor(ctx: Types.ConstructorCtx, setup: Types.ConstructorSetup) {
 		this._ctx = ctx
 		this._index = setup.index
 		this._errors = Errors
 	}
 
+	/**
+	 * Initializes the parser service and registers modules.
+	 * @param ctx - Initialization context.
+	 * @returns Initialized `Parser` instance.
+	 */
 	public static async init(ctx: Types.InitCtx): Promise<Parser> {
 		const index = Parser._createIndex()
 		return new Parser({ logger: ctx.logger }, { index })
@@ -92,6 +109,11 @@ export class Parser {
 		return result
 	}
 
+	/**
+	 * Build the module index from available parser modules.
+	 * @returns Map from file extension to parser module.
+	 * @throws {Errors.ParserConfigurationError} If duplicate extensions are found.
+	 */
 	private static _createIndex(): Types.ParsersIndex {
 		const index = new Map()
 		for (const parser of Object.values(Modules)) {

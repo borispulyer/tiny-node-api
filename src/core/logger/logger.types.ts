@@ -1,5 +1,5 @@
 /*
- * Imorts
+ * Imports
  */
 import type { BootstrapTypes } from '@/core'
 import pino from 'pino'

@@ -1,3 +1,9 @@
+/**
+ * Select a single user object by its `id` from an array.
+ * @param {any[]} data - Array of user-like objects.
+ * @param {{id?: string|number}} params - Parameters containing the `id` to match.
+ * @returns {any|null|any[]} The matched user object, null if not found, or original data if invalid input.
+ */
 export default function userById(data, params) {
 	// Validation
 	if (!Array.isArray(data) || !params || !('id' in params)) return data

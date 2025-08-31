@@ -5,21 +5,38 @@ import * as Modules from './modules'
 import * as Errors from './modifier.errors'
 import type * as Types from './modifier.types'
 
+/**
+ * Modifier service to apply transformation modules to data objects.
+ */
 export class Modifier {
 	private _ctx
 	private _index
 	private _errors
 
+	/**
+	 * Exposes the modifier error types.
+	 * @returns Error namespace with specific modifier errors.
+	 */
 	get ['errors']() {
 		return this._errors
 	}
 
+	/**
+	 * Creates a new modifier instance.
+	 * @param ctx - Context with configuration, logger and parser.
+	 * @param setup - Setup containing the module index.
+	 */
 	private constructor(ctx: Types.ConstructorCtx, setup: Types.ConstructorSetup) {
 		this._ctx = ctx
 		this._index = setup.index
 		this._errors = Errors
 	}
 
+	/**
+	 * Initializes the modifier service and registers modules.
+	 * @param ctx - Initialization context.
+	 * @returns Initialized `Modifier` instance.
+	 */
 	public static async init(ctx: Types.InitCtx): Promise<Modifier> {
 		const index = await Modifier._createIndex()
 		return new Modifier(
@@ -95,6 +112,11 @@ export class Modifier {
 		return result
 	}
 
+	/**
+	 * Build the module index from available modifier modules.
+	 * @returns Map from selector to modifier module.
+	 * @throws {Errors.ModifierConfigurationError} If duplicate selectors are found.
+	 */
 	private static async _createIndex(): Promise<Types.ModifiersIndex> {
 		const index = new Map()
 		for (const modifier of Object.values(Modules)) {

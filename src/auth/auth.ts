@@ -6,21 +6,39 @@ import * as jose from 'jose'
 import * as Errors from './auth.errors'
 import type * as Types from './auth.types'
 
+/**
+ * Authentication module handling OAuth2/JWT verification.
+ */
 export class Auth {
 	private _ctx
 	private _jwks
 	private _errors
 
+	/**
+	 * Exposes the authentication error types.
+	 * @returns Error namespace with specific auth errors.
+	 */
 	get ['errors']() {
 		return this._errors
 	}
 
+	/**
+	 * Creates a new authentication instance.
+	 * @param ctx - Context with configuration and logger.
+	 * @param setup - Setup parameters like JWKS.
+	 */
 	private constructor(ctx: Types.ConstructorCtx, setup: Types.ConstructorSetup) {
 		this._ctx = ctx
 		this._jwks = setup.jwks
 		this._errors = Errors
 	}
 
+	/**
+	 * Initializes the authentication module from the application context.
+	 * @param ctx - Initialization context containing config and logger.
+	 * @returns Initialized `Auth` instance ready to verify tokens.
+	 * @throws {Errors.AuthConfigurationError} If required configuration is missing.
+	 */
 	public static async init(ctx: Types.InitCtx): Promise<Auth> {
 		// Validate config
 		const { issuerUri, jwksUri, audience } = ctx.config.auth.oauth2

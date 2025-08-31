@@ -5,15 +5,28 @@ import pino from 'pino'
 import pinoHttp from 'pino-http'
 import type * as Types from './logger.types'
 
+/**
+ * Application and HTTP logging facade built on top of pino.
+ */
 export class Logger {
 	private _loggerApp
 	private _loggerHttp
 
+	/**
+	 * Create a new logger instance.
+	 * @param ctx - Constructor context.
+	 * @param setup - Setup including app and http loggers.
+	 */
 	private constructor(ctx: Types.ConstructorCtx, setup: Types.ConstructorSetup) {
 		this._loggerApp = setup.loggerApp
 		this._loggerHttp = setup.loggerHttp
 	}
 
+	/**
+	 * Initialize app and HTTP loggers based on configuration.
+	 * @param ctx - Initialization context providing configuration.
+	 * @returns Initialized `Logger` instance.
+	 */
 	public static async init(ctx: Types.InitCtx): Promise<Logger> {
 		const loggerApp = await Logger._createAppLogger(ctx.config.logging.app)
 		const loggerHttp = await Logger._createHttpLogger(ctx.config.logging.http)
@@ -132,6 +145,11 @@ export class Logger {
 		return msg.join(' ')
 	}
 
+	/**
+	 * Create the pino logger for application logs.
+	 * @param config - Application logging configuration.
+	 * @returns Configured pino logger instance.
+	 */
 	private static async _createAppLogger(
 		config: Types.InitCtxConfigLogging['app'],
 	): Promise<pino.Logger> {
@@ -145,6 +163,11 @@ export class Logger {
 		})
 	}
 
+	/**
+	 * Create the HTTP logger middleware based on configuration.
+	 * @param config - HTTP logging configuration.
+	 * @returns pino-http middleware function.
+	 */
 	private static async _createHttpLogger(
 		config: Types.InitCtxConfigLogging['http'],
 	): Promise<any> {

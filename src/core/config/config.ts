@@ -9,6 +9,9 @@ import type * as Types from './config.types'
 import { parsers, objects, files } from '@/core'
 import type { BootstrapTypes } from '@/core'
 
+/**
+ * Configuration service that loads, merges and validates application settings.
+ */
 export class Config {
 	private _config
 	private _errors
@@ -41,11 +44,22 @@ export class Config {
 		return this._errors
 	}
 
+	/**
+	 * Creates a new configuration instance.
+	 * @param ctx - Constructor context (reserved for DI).
+	 * @param setup - Setup containing the resolved config object.
+	 */
 	private constructor(ctx: Types.ConstructorCtx, setup: Types.ConstructorSetup) {
 		this._config = setup.config
 		this._errors = Errors
 	}
 
+	/**
+	 * Initializes configuration by loading environment and file values and
+	 * merging them with defaults, then validating the final result.
+	 * @returns Initialized `Config` instance.
+	 * @throws {Errors.ConfigValidationError} If validation fails.
+	 */
 	public static async init(): Promise<Config> {
 		const configEnv = await Config._loadConfigFromEnv(process.env)
 		const configFile = await Config._loadConfigFromFile('')
@@ -58,6 +72,13 @@ export class Config {
 		return new Config({}, { config })
 	}
 
+	/**
+	 * Validates a configuration object against required invariants and
+	 * availability of referenced resources.
+	 * @param config - Configuration to validate.
+	 * @param ctx - Optional application context to validate dynamic dependencies.
+	 * @throws {Errors.ConfigValidationError} If any validation rule fails.
+	 */
 	public static async validateConfig(
 		config: Types.Config,
 		ctx?: BootstrapTypes.AppContext,
@@ -170,6 +191,11 @@ export class Config {
 		}
 	}
 
+	/**
+	 * Loads partial configuration from environment variables.
+	 * @param env - Source environment object (typically `process.env`).
+	 * @returns Partial configuration derived from environment variables.
+	 */
 	private static async _loadConfigFromEnv(env: any): Promise<Types.ConfigPartial> {
 		return {
 			server: {
@@ -277,6 +303,12 @@ export class Config {
 		}
 	}
 
+	/**
+	 * Loads additional configuration from a config file.
+	 * Currently a placeholder for future file-based config.
+	 * @param file - Path to the config file.
+	 * @returns Partial configuration from file (if any).
+	 */
 	private static async _loadConfigFromFile(file: string): Promise<Types.ConfigPartial> {
 		return {}
 	}

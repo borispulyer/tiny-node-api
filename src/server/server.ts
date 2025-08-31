@@ -8,21 +8,38 @@ import * as Errors from './server.errors'
 import type * as Types from './server.types'
 import { url } from '@/core'
 
+/**
+ * HTTP server orchestrating routing, authentication, parsing, modification and formatting.
+ */
 export class Server {
 	private _ctx
 	private _server
 	private _errors
 
+	/**
+	 * Exposes the server error types.
+	 * @returns Error namespace with specific server errors.
+	 */
 	get ['errors']() {
 		return this._errors
 	}
 
+	/**
+	 * Creates a new server instance.
+	 * @param ctx - Constructor context with config and services.
+	 * @param setup - Setup parameters (none currently).
+	 */
 	private constructor(ctx: Types.ConstructorCtx, setup: Types.ConstructorSetup) {
 		this._ctx = ctx
 		this._server = this._createServer()
 		this._errors = Errors
 	}
 
+	/**
+	 * Initializes the server and builds indices for endpoint routing.
+	 * @param ctx - Initialization context with config and services.
+	 * @returns Initialized `Server` instance.
+	 */
 	public static async init(ctx: Types.InitCtx): Promise<Server> {
 		Modules.endpoints.createIndex(ctx.config.endpoints)
 		return new Server(
@@ -46,6 +63,9 @@ export class Server {
 		)
 	}
 
+	/**
+	 * Start listening on the configured HTTP port.
+	 */
 	public start(): void {
 		this._server.listen(this._ctx.config.server.port, () => {
 			this._ctx.logger.info(
@@ -57,7 +77,8 @@ export class Server {
 	}
 
 	/**
-	 * Create and configure HTTP server
+	 * Create and configure the HTTP server instance.
+	 * @returns Configured Node.js HTTP server.
 	 */
 	private _createServer(): http.Server {
 		const server = http

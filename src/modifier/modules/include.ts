@@ -45,7 +45,9 @@ export default {
 					}
 					seen.add(file)
 
-					return await _walk(await ctx.parser.run(file), path.dirname(file))
+					const result = await _walk(await ctx.parser.run(file), path.dirname(file))
+					seen.delete(file)
+					return result
 				}
 				for (const key of Object.keys(node)) {
 					node[key] = await _walk(node[key], base_dir)

@@ -3,8 +3,8 @@
  */
 import http from 'node:http'
 
-/*
- * Error Definitions
+/**
+ * Generic HTTP error containing status and headers for response handling.
  */
 export class HttpError extends Error {
 	public status: number | undefined
@@ -22,6 +22,9 @@ export class HttpError extends Error {
 	}
 }
 
+/**
+ * Specialized HTTP error used to indicate a 304 Not Modified response.
+ */
 export class HttpNotModifiedError extends HttpError {
 	public constructor(headers?: http.OutgoingHttpHeaders | http.OutgoingHttpHeader[]) {
 		super()
@@ -30,6 +33,9 @@ export class HttpNotModifiedError extends HttpError {
 	}
 }
 
+/**
+ * Server configuration error with optional config snapshot for diagnostics.
+ */
 export class ConfigurationError extends Error {
 	public config: any
 

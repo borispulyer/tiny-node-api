@@ -1,3 +1,9 @@
+/**
+ * Filter a list of items by tags provided as comma-separated values.
+ * @param {any[]} data - Array of items with an optional `tags` array.
+ * @param {{tag?: string}} params - Parameters containing `tag` CSV string.
+ * @returns {any[]} Filtered list or original data if params invalid.
+ */
 export default function itemsByTag(data, params) {
 	if (!Array.isArray(data)) return data
 

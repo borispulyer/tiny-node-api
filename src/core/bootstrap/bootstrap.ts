@@ -9,6 +9,12 @@ import { Auth } from '@/auth'
 import { Server } from '@/server'
 import type * as Types from './bootstrap.types'
 
+/**
+ * Create and initialize the full application context with all services.
+ * Loads configuration, initializes loggers, registers parsers/formatters/modifiers,
+ * optionally sets up authentication, creates the HTTP server, and validates config.
+ * @returns Fully initialized application context.
+ */
 export async function createAppContext(): Promise<Types.AppContext> {
 	try {
 		const config = await Config.init()

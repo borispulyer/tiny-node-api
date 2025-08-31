@@ -5,21 +5,38 @@ import * as Modules from './modules'
 import * as Errors from './formatter.errors'
 import type * as Types from './formatter.types'
 
+/**
+ * Formatter service that converts data objects into text formats.
+ */
 export class Formatter {
 	private _ctx
 	private _index
 	private _errors
 
+	/**
+	 * Exposes the formatter error types.
+	 * @returns Error namespace with specific formatter errors.
+	 */
 	get ['errors']() {
 		return this._errors
 	}
 
+	/**
+	 * Creates a new formatter instance.
+	 * @param ctx - Context with logger.
+	 * @param setup - Setup containing the formatter index.
+	 */
 	private constructor(ctx: Types.ConstructorCtx, setup: Types.ConstructorSetup) {
 		this._ctx = ctx
 		this._index = setup.index
 		this._errors = Errors
 	}
 
+	/**
+	 * Initializes the formatter service and registers modules.
+	 * @param ctx - Initialization context.
+	 * @returns Initialized `Formatter` instance.
+	 */
 	public static async init(ctx: Types.InitCtx): Promise<Formatter> {
 		const index = await Formatter._createIndex()
 		return new Formatter({ logger: ctx.logger }, { index })
@@ -83,6 +100,11 @@ export class Formatter {
 		return result
 	}
 
+	/**
+	 * Build the module index from available formatter modules.
+	 * @returns Map from selector to formatter module.
+	 * @throws {Errors.FormatterConfigurationError} If duplicate selectors are found.
+	 */
 	private static async _createIndex(): Promise<Types.FormattersIndex> {
 		const index = new Map()
 		for (const formatter of Object.values(Modules)) {

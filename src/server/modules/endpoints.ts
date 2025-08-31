@@ -159,6 +159,10 @@ export async function run(
 	return result
 }
 
+/**
+ * Build an index for endpoint routing with optional path parameters.
+ * @param endpoints - Endpoint configurations from server config.
+ */
 export function createIndex(endpoints: Types.ConstructorCtx['config']['endpoints']): void {
 	_indexEndpoints.length = 0
 
@@ -167,7 +171,7 @@ export function createIndex(endpoints: Types.ConstructorCtx['config']['endpoints
 		if (!endpoint.enable) continue
 
 		if (!endpoint.path.includes('{')) {
-			// Path contains no paramters -> 'static'
+			// Path contains no parameters -> 'static'
 			_indexEndpoints.push({
 				path: endpoint.path,
 				file: endpoint.file,
@@ -175,7 +179,7 @@ export function createIndex(endpoints: Types.ConstructorCtx['config']['endpoints
 				filter: endpoint.filter,
 			})
 		} else {
-			// Path contains {paramters} -> regex
+			// Path contains {parameters} -> regex
 			const params: string[] = []
 			const escaped = endpoint.path
 				.replace(/[-/\\^$*+?.()|[\]{}]/g, (char) =>
