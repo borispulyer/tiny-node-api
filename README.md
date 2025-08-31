@@ -1,6 +1,6 @@
 # tiny-node-api
 
-A lightweight, configurable static API server that turns files in text-based data serilization formats (JSON, YAML) into HTTP endpoints. It can serve files directly from the **filesystem**, expose **declarative endpoints**, optionally run **filter functions** over the data, and secure requests with **OAuth2/JWT** validation. It allows to **merge** multiple files into one single files, e.g. to split configuration files in managable chunks and serve them as a single file. Logging is split into **HTTP access logs** and **application logs**.
+A lightweight, configurable static API server that turns files in text-based data serialization formats (JSON, YAML) into HTTP endpoints. It can serve files directly from the **filesystem**, expose **declarative endpoints**, optionally run **filter functions** over the data, and secure requests with **OAuth2/JWT** validation. It allows **merging** multiple files into a **single file**, e.g., to split configuration files into manageable chunks and serve them as a single file. Logging is split into **HTTP access logs** and **application logs**.
 
 # How it works
 
@@ -9,23 +9,23 @@ A lightweight, configurable static API server that turns files in text-based dat
 The server has different "locations" to handle requests:
 
 - The `heartbeat` location provides a health probe.
-- The `endpoints` location exposes configurable endpoints which can be mapped to specific files (`http://myserver/api/v1/users` might provide the content of `/public/users.json`). The server can optionally run filter functions before providing the content; named parameters (`http://myserver/api/va/users/{id}/{email}`) can be used to speicify the behaviour of the filter.
+- The `endpoints` location exposes configurable endpoints which can be mapped to specific files (`http://myserver/api/v1/users` might provide the content of `/public/users.json`). The server can optionally run filter functions before providing the content; named parameters (`http://myserver/api/v1/users/{id}/{email}`) can be used to specify the behaviour of the filter.
 - The `filesystem` location just serves files in the server's `SERVER_PATH_PUBLIC`. However a modifier can be used to transform files, e.g. in order to merge multiple files into one single file.
 
-The server will check the locations in the follwong order
+The server will check the locations in the following order
 
 ```
 Heartbeat → [Authentication] → Endpoints → Filesystem
 ```
 
-If authentication is enabled, a request to the `endpoint` or `filesysrtem` location needs a valid JASON web token (JWT). Request to the `heartbeat` location never need authentication.
+If authentication is enabled, a request to the `endpoints` or `filesystem` location needs a valid JSON web token (JWT). Requests to the `heartbeat` location never need authentication.
 
 ## Processing requests
 
 A request to a `filesystem` or `endpoints` location will be processed by different modules in the following order:
 
 - Parse file (currently `JSON` and `YAML`)
-- Apply modifiers (currently `include` modifier to merge the content of seperate files in order to create a single response from files)
+- Apply modifiers (currently `include` modifier to merge the content of separate files in order to create a single response from files)
 - Run a JavaScript filter function (only available for `endpoint` location)
 - Format output (currently `JSON`, `YAML` or `JS`)
 
@@ -148,7 +148,7 @@ docker compose up --build
 
 # Configuration
 
-Below you’ll find an overview of every environment variable consumed by the current codebase, grouped by topic and shown with its default values. Paths marked `/project-root` are resolved relative to the repository root. Please find a detailed explamantion of the configuration properties afterwards.
+Below you’ll find an overview of every environment variable consumed by the current codebase, grouped by topic and shown with its default values. Paths marked `/project-root` are resolved relative to the repository root. Please find a detailed explanation of the configuration properties afterwards.
 
 **Overview**
 
@@ -216,8 +216,6 @@ ENDPOINTS='
 ###
 #	Enable OAuth2 authentication (false)
 AUTH_ENABLE=false
-#	Realm presented to clients (Config API)
-AUTH_OAUTH2_REALM=Config API
 #	OAuth2 issuer URI
 AUTH_OAUTH2_ISSUER=https://issuer.example.com
 #	JWKS endpoint providing public keys
@@ -316,6 +314,7 @@ LOGGING_APP_LOGROTATION_SYMLINK=false
 
 **Notes**
 
+- Relative paths in environment variables (e.g., `SERVER_PATH_PUBLIC`, `SERVER_PATH_FILTER`) are resolved relative to the project root.
 - All timeouts are **milliseconds**.
 - Filesystem requests resolve the requested path under `SERVER_PATH_PUBLIC`. If it falls outside, it is rejected. **Please note**, that the server does not check the real path of symlinks.
 - Filter function files are resolved under `SERVER_PATH_FILTER`. If it falls outside, it is rejected. **Please note**, that the server does not check the real path of symlinks.
@@ -335,7 +334,7 @@ A request is handled by one of the location modules in the following order.
 Heartbeat → Endpoints → Filesystem
 ```
 
-### Hearbeat location
+### Heartbeat location
 
 Requesting `http://myserver/_heartbeat`will return a `200 OK` HTTP status code.
 
@@ -399,7 +398,7 @@ You can find additional information about filter functions and ready-to-use exam
 
 ### Filesystem location
 
-Serve files from `SERVER_PATH_PUBLIC` with a fileformat know to the available parsers. If a request falls outside, it is rejected. Please note, that the server does not check the real path of symlinks.
+Serve files from `SERVER_PATH_PUBLIC` with a file format known to the available parsers. If a request falls outside, it is rejected. Please note that the server does not check the real path of symlinks.
 
 | Variable                 | Purpose                                                                                                                     | Default |
 | ------------------------ | --------------------------------------------------------------------------------------------------------------------------- | ------- |
@@ -476,7 +475,7 @@ Use an object with an `__include__` property whose value is a string path. The p
 - **Relative paths** are resolved from the directory of the file that contains the directive; included files may themselves contain further includes, and the base directory updates at each step.
 - **Security boundary**: The target must resolve **inside** `SERVER_PATH_PUBLIC`. If not, the server responds with **403 Forbidden**.
 - **Duplicate includes**: The same file may not be included more than once within a single request. Re-including the same file raises a **500 Syntax Error**.
-- **Missing/unsupported file**: If the included file cannot be parsed by any registered parser, the `__include__` node is left **as-is** (the directive remains in the data) rather than failing the whole request.
+- **Unparsable/unsupported files**: If the included file cannot be parsed by a registered parser or its content has syntax issues, it is treated as a syntax error and results in an **HTTP 500**.
 - **Merging/flattening**: Includes are **pure replacement** of the node where they appear. The server does not merge objects or flatten arrays for you. If you include an array inside an array, you will get a nested array.
 
 ### Errors and their meaning
@@ -484,11 +483,11 @@ Use an object with an `__include__` property whose value is a string path. The p
 - Outside of `SERVER_PATH_PUBLIC` → **403 Forbidden** (file access error).
 - Re-including the same file (even from different locations) → **500 Syntax error in file**.
 - I/O error during include (file not found) → **404 File not found**.
-- Unsupported or unparsable include target → the directive remains unchanged (no fatal error).
+- Unsupported or unparsable include target → **500 Syntax error in file**.
 
 ## Formatters
 
-Formatters run at the end of the pipeline before sending the file to the client. They convert the JavaScript object to the request output format. For a detailed explanation on howto select the desired format see [URL structure and format selection](#3-url-structure-and-format-selection)
+Formatters run at the end of the pipeline before sending the file to the client. They convert the JavaScript object to the request output format. For a detailed explanation on how to select the desired format see [URL structure and format selection](#3-url-structure-and-format-selection)
 
 ```
 Parser → Modifier → Endpoint Filters (optional) → Formatter
@@ -502,23 +501,22 @@ Registered formatters: `json`, `yaml`, `js`.
 
 ## Authentication (OAuth2/JWT)
 
-Authentication is done by providing a JSON Web Tokens (JWT) in the authentication header. The sever checks if the token is valid and authenticates the user.
+Authentication is done by providing a JSON Web Token (JWT) in the authentication header. The server checks if the token is valid and authenticates the user.
 
-| Variable               | Purpose                                                                   | Default        |
-| ---------------------- | ------------------------------------------------------------------------- | -------------- |
-| `AUTH_ENABLE`          | Enable/disable authentication.                                            | `false`        |
-| `AUTH_OAUTH2_REALM`    | Name shown in `WWW-Authenticate` errors to identify the protection space. | `"Config API"` |
-| `AUTH_OAUTH2_ISSUER`   | Issuer (Authorization Server) base URL.                                   | `null`         |
-| `AUTH_OAUTH2_JWKS`     | JWKS URL for verifying JWT signatures.                                    | `null`         |
-| `AUTH_OAUTH2_AUDIENCE` | Expected `aud` claim (your API identifier).                               | `null`         |
+| Variable               | Purpose                                     | Default |
+| ---------------------- | ------------------------------------------- | ------- |
+| `AUTH_ENABLE`          | Enable/disable authentication.              | `false` |
+| `AUTH_OAUTH2_ISSUER`   | Issuer (Authorization Server) base URL.     | `null`  |
+| `AUTH_OAUTH2_JWKS`     | JWKS URL for verifying JWT signatures.      | `null`  |
+| `AUTH_OAUTH2_AUDIENCE` | Expected `aud` claim (your API identifier). | `null`  |
 
 ### How auth works
 
-- To authenticate the client must provide a JSON Web Tokens (JWT) in its authorization header.The server expects the following header: `Authorization: Bearer <JWT>`.
+- To authenticate the client must provide a JSON Web Token (JWT) in its Authorization header. The server expects the following header: `Authorization: Bearer <JWT>`.
 - It fetches the JWKS (public keys) from `AUTH_OAUTH2_JWKS` and validates the token’s signature and standard claims. It enforces the `aud` claim if configured.
 - On failure, it returns `401 Unauthorized` and sets `WWW-Authenticate` with details (realm and error code/message).
-- If `AUTH_ENABLE=false`, requests are not authenticated. Request to the [heartbeat location](#221-hearbeat-location) are never authenticated.
-- Under the hood, [jose](https://www.npmjs.com/package/jose) is perforing the token validation.
+- If `AUTH_ENABLE=false`, requests are not authenticated. Requests to the [heartbeat location](#heartbeat-location) are never authenticated.
+- Under the hood, [jose](https://www.npmjs.com/package/jose) is performing the token validation.
 
 ### Glossary
 
@@ -603,12 +601,12 @@ The server has two “locations” that can handle a request: **filesystem** and
 
 Assume that a file `public/config/app.yaml` is available on the server:
 
-- `GET http://myserver/config/app.yaml` → parses `public/config/app.yaml`, returns **JSON**.
+- `GET http://myserver/config/app.yaml` → parses `public/config/app.yaml`, returns **YAML**.
 - `GET http://myserver/config/app` with `FILESYSTEM_RESOLVE_EXT=true` and `FORMATTER_DEFAULT=json` → resolves `public/config/app.yaml` and returns **JSON**.
 
 ## Endpoints location
 
-Endpoints are configured via the [`ENDPOINTS` JSON array](#222-endpoints-location). Matching uses literal paths with optional named parameters (`{id}`, `{path}`, …).
+Endpoints are configured via the [`ENDPOINTS` JSON array](#endpoints-location). Matching uses literal paths with optional named parameters (`{id}`, `{path}`, …).
 
 ### File resolving for endpoint location requests
 
@@ -630,7 +628,7 @@ Only the file specified in `endpoint.file` will be processed for the response.
 
 # Filter functions
 
-Filter function can be configured within an endpoint location. The filesystem location is intended to just server static files and does not provode any filter function.
+Filter functions can be configured within an endpoint location. The filesystem location is intended to just serve static files and does not provide any filter function.
 
 Filter functions run after the parser and the modifier in the pipeline and allow you to programmatically transform the parsed data **per endpoint** before formatting.
 
@@ -994,8 +992,6 @@ services:
       ###
       #	Enable OAuth2 authentication (false)
       #AUTH_ENABLE: false
-      #	Realm presented to clients (Config API)
-      #AUTH_OAUTH2_REALM: Config API
       #	OAuth2 issuer URI
       #AUTH_OAUTH2_ISSUER: https://issuer.example.com
       #	JWKS endpoint providing public keys
@@ -1166,7 +1162,7 @@ This section is for developers who want to extend or maintain the codebase.
   - `server.ts` – HTTP server lifecycle; applies authentication and routes through locations; sets `ETag`/`Last-Modified` where possible.
   - `modules/`
     - `auth.ts` – Auth wrapper around the auth subsystem.
-    - `endpoints.ts` – Indexes and matches `ENDPOINTS`; resolves files; runs parser → modifiers → formatter → filter.
+    - `endpoints.ts` – Indexes and matches `ENDPOINTS`; resolves files; runs parser → modifiers → filter → formatter.
     - `filesystem.ts` – Serves files under `SERVER_PATH_PUBLIC`; safe root checking; optional extension resolution.
     - `heartbeat.ts` – Health endpoint.
 

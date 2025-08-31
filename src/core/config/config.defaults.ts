@@ -39,7 +39,6 @@ export const configDefaults: Types.Config = {
 	auth: {
 		enable: false,
 		oauth2: {
-			realm: 'Config API',
 			issuerUri: null,
 			jwksUri: null,
 			audience: null,

@@ -9,6 +9,8 @@ import type * as Types from './config.types'
 import { parsers, objects, files } from '@/core'
 import type { BootstrapTypes } from '@/core'
 
+const app_root: string = path.resolve(import.meta.dirname, '../../../')
+
 /**
  * Configuration service that loads, merges and validates application settings.
  */
@@ -203,15 +205,13 @@ export class Config {
 				path: {
 					public: parsers.parseString(env.SERVER_PATH_PUBLIC)
 						? path.resolve(
-								import.meta.dirname,
-								'..',
+								app_root,
 								parsers.parseString(env.SERVER_PATH_PUBLIC) as string,
 							)
 						: undefined,
 					filter: parsers.parseString(env.SERVER_PATH_FILTER)
 						? path.resolve(
-								import.meta.dirname,
-								'..',
+								app_root,
 								parsers.parseString(env.SERVER_PATH_FILTER) as string,
 							)
 						: undefined,
@@ -240,7 +240,6 @@ export class Config {
 			auth: {
 				enable: parsers.parseBool(env.AUTH_ENABLE),
 				oauth2: {
-					realm: parsers.parseString(env.AUTH_OAUTH2_REALM),
 					issuerUri: parsers.parseString(env.AUTH_OAUTH2_ISSUER),
 					jwksUri: parsers.parseString(env.AUTH_OAUTH2_JWKS),
 					audience: parsers.parseString(env.AUTH_OAUTH2_AUDIENCE),

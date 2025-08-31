@@ -81,6 +81,9 @@ export async function run(
 		if (error instanceof ctx.parser.errors.ParserSyntaxError) {
 			throw new Errors.HttpError(`Syntax error in file`, 500)
 		}
+		if (error instanceof ctx.parser.errors.ParserError) {
+			throw new Errors.HttpError(`Internal server error`, 500)
+		}
 		throw error
 	}
 
@@ -107,6 +110,9 @@ export async function run(
 			}
 			if (error instanceof ctx.modifier.errors.ModifierSyntaxError) {
 				throw new Errors.HttpError(`Syntax error in file`, 500)
+			}
+			if (error instanceof ctx.modifier.errors.ModifierError) {
+				throw new Errors.HttpError(`Internal server error`, 500)
 			}
 			throw error
 		}
@@ -144,6 +150,9 @@ export async function run(
 		}
 		if (error instanceof ctx.formatter.errors.FormatterMissingError) {
 			throw new Errors.HttpError(`${error.message}`, 406)
+		}
+		if (error instanceof ctx.formatter.errors.FormatterError) {
+			throw new Errors.HttpError(`Internal server error`, 500)
 		}
 		throw error
 	}

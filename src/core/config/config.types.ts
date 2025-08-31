@@ -47,7 +47,6 @@ export interface Config {
 	auth: {
 		enable: boolean
 		oauth2: {
-			realm: string | null
 			issuerUri: string | null
 			jwksUri: string | null
 			audience: string | null

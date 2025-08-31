@@ -58,6 +58,20 @@ export default {
 
 		const seen: Set<string> = new Set<string>()
 		if (!options.baseDir) throw new Errors.ModifierError(`options.baseDir is mandatory`)
-		return await _walk(data, options.baseDir)
+		try {
+			return await _walk(data, options.baseDir)
+		} catch (error: any) {
+			ctx.logger.debug({ module: 'modifier/include', error })
+			if (error instanceof ctx.parser.errors.ParserFilereadError) {
+				throw new Errors.ModifierFileReadError(error.message)
+			}
+			if (
+				error instanceof ctx.parser.errors.ParserSyntaxError ||
+				error instanceof ctx.parser.errors.ParserMissingError
+			) {
+				throw new Errors.ModifierSyntaxError(error.message)
+			}
+			throw error
+		}
 	},
 } satisfies Types.ModifierModules

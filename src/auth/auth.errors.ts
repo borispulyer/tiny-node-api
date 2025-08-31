@@ -18,7 +18,7 @@ export class AuthError extends Error {
 		super(message)
 		this.name = this.constructor.name
 		this.header.status = 401
-		// this.header.realm = config.auth.oauth2.realm
+		this.header.realm = 'API'
 		this.header.error = 'invalid_token'
 		this.header.error_description = undefined
 	}
