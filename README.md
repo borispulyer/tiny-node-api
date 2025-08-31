@@ -148,7 +148,7 @@ docker compose up --build
 
 # Configuration
 
-Below you’ll find an overview of every environment variable consumed by the current codebase, grouped by topic and shown with its default values. Paths marked `/project-root` are resolved relative to the repository root. Please find a detailed explanation of the configuration properties afterwards.
+Below you’ll find an overview of every environment variable consumed by the current codebase, grouped by topic and shown with its default values. Paths marked `CWD` are resolved relative to the current working directory. Please find a detailed explanation of the configuration properties afterwards.
 
 **Overview**
 
@@ -299,8 +299,8 @@ LOGGING_APP_LOGROTATION_SYMLINK=false
 | Variable                      | Purpose                                                                                              | Default                                           |
 | ----------------------------- | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
 | `SERVER_PORT`                 | Port for the HTTP server.                                                                            | `3000`                                            |
-| `SERVER_PATH_PUBLIC`          | Root directory for serving files and resolving `endpoints[].file`.                                   | `project-root/public`                             |
-| `SERVER_PATH_FILTER`          | Root directory where filter function files live; `endpoints[].filter` is resolved under this folder. | `project-root/filter`                             |
+| `SERVER_PATH_PUBLIC`          | Root directory for serving files and resolving `endpoints[].file`.                                   | `CWD/public`                                      |
+| `SERVER_PATH_FILTER`          | Root directory where filter function files live; `endpoints[].filter` is resolved under this folder. | `CWD/filter`                                      |
 | `SERVER_LOCATIONS_HEARTBEAT`  | Enable the heartbeat location.                                                                       | `true`                                            |
 | `SERVER_LOCATIONS_ENDPOINTS`  | Enable endpoint-based serving.                                                                       | `true`                                            |
 | `SERVER_LOCATIONS_FILESYSTEM` | Enable direct filesystem serving.                                                                    | `true`                                            |
@@ -314,7 +314,7 @@ LOGGING_APP_LOGROTATION_SYMLINK=false
 
 **Notes**
 
-- Relative paths in environment variables (e.g., `SERVER_PATH_PUBLIC`, `SERVER_PATH_FILTER`) are resolved relative to the project root.
+- Relative paths in environment variables (e.g., `SERVER_PATH_PUBLIC`, `SERVER_PATH_FILTER`) are resolved relative to the current working directory.
 - All timeouts are **milliseconds**.
 - Filesystem requests resolve the requested path under `SERVER_PATH_PUBLIC`. If it falls outside, it is rejected. **Please note**, that the server does not check the real path of symlinks.
 - Filter function files are resolved under `SERVER_PATH_FILTER`. If it falls outside, it is rejected. **Please note**, that the server does not check the real path of symlinks.
@@ -535,37 +535,37 @@ Logging uses two channels:
 
 ### HTTP access logging
 
-| Variable                              | Purpose                                       | Default                    |
-| ------------------------------------- | --------------------------------------------- | -------------------------- |
-| `LOGGING_HTTP_ENABLE`                 | Enable/disable HTTP access logging pipeline.  | `true`                     |
-| `LOGGING_HTTP_STDOUT_ENABLE`          | Enable stdout target for access logs.         | `false`                    |
-| `LOGGING_HTTP_STDOUT_LEVEL`           | Min level for stdout target.                  | `"info"`                   |
-| `LOGGING_HTTP_FILE_ENABLE`            | Enable file target for access logs.           | `true`                     |
-| `LOGGING_HTTP_FILE`                   | File path prefix (rotated file base path).    | `project-root/logs/access` |
-| `LOGGING_HTTP_FILE_LEVEL`             | Min level for file target.                    | `"info"`                   |
-| `LOGGING_HTTP_LOGROTATION_SIZE`       | Rotate after size.                            | `"10M"`                    |
-| `LOGGING_HTTP_LOGROTATION_FREQUENCY`  | Rotation cadence.                             | `"daily"`                  |
-| `LOGGING_HTTP_LOGROTATION_LIMIT`      | Keep up to N rotations.                       | `180`                      |
-| `LOGGING_HTTP_LOGROTATION_EXTENSION`  | File extension.                               | `"log"`                    |
-| `LOGGING_HTTP_LOGROTATION_DATEFORMAT` | Date format used in filenames.                | `"yyyy-MM-dd"`             |
-| `LOGGING_HTTP_LOGROTATION_SYMLINK`    | Maintain a stable symlink to the latest file. | `false`                    |
+| Variable                              | Purpose                                       | Default           |
+| ------------------------------------- | --------------------------------------------- | ----------------- |
+| `LOGGING_HTTP_ENABLE`                 | Enable/disable HTTP access logging pipeline.  | `true`            |
+| `LOGGING_HTTP_STDOUT_ENABLE`          | Enable stdout target for access logs.         | `false`           |
+| `LOGGING_HTTP_STDOUT_LEVEL`           | Min level for stdout target.                  | `"info"`          |
+| `LOGGING_HTTP_FILE_ENABLE`            | Enable file target for access logs.           | `true`            |
+| `LOGGING_HTTP_FILE`                   | File path prefix (rotated file base path).    | `CWD/logs/access` |
+| `LOGGING_HTTP_FILE_LEVEL`             | Min level for file target.                    | `"info"`          |
+| `LOGGING_HTTP_LOGROTATION_SIZE`       | Rotate after size.                            | `"10M"`           |
+| `LOGGING_HTTP_LOGROTATION_FREQUENCY`  | Rotation cadence.                             | `"daily"`         |
+| `LOGGING_HTTP_LOGROTATION_LIMIT`      | Keep up to N rotations.                       | `180`             |
+| `LOGGING_HTTP_LOGROTATION_EXTENSION`  | File extension.                               | `"log"`           |
+| `LOGGING_HTTP_LOGROTATION_DATEFORMAT` | Date format used in filenames.                | `"yyyy-MM-dd"`    |
+| `LOGGING_HTTP_LOGROTATION_SYMLINK`    | Maintain a stable symlink to the latest file. | `false`           |
 
 ### Application logging
 
-| Variable                             | Purpose                                       | Default                 |
-| ------------------------------------ | --------------------------------------------- | ----------------------- |
-| `LOGGING_APP_ENABLE`                 | Enable/disable application logging pipeline.  | `true`                  |
-| `LOGGING_APP_STDOUT_ENABLE`          | Enable stdout target for app logs.            | `true`                  |
-| `LOGGING_APP_STDOUT_LEVEL`           | Min level for stdout target.                  | `"warn"`                |
-| `LOGGING_APP_FILE_ENABLE`            | Enable file target for app logs.              | `true`                  |
-| `LOGGING_APP_FILE`                   | File path prefix (rotated file base path).    | `project-root/logs/app` |
-| `LOGGING_APP_FILE_LEVEL`             | Min level for file target.                    | `"info"`                |
-| `LOGGING_APP_LOGROTATION_SIZE`       | Rotate after size.                            | `"10M"`                 |
-| `LOGGING_APP_LOGROTATION_FREQUENCY`  | Rotation cadence.                             | `"daily"`               |
-| `LOGGING_APP_LOGROTATION_LIMIT`      | Keep up to N rotations.                       | `180`                   |
-| `LOGGING_APP_LOGROTATION_EXTENSION`  | File extension.                               | `"log"`                 |
-| `LOGGING_APP_LOGROTATION_DATEFORMAT` | Date format used in filenames.                | `"yyyy-MM-dd"`          |
-| `LOGGING_APP_LOGROTATION_SYMLINK`    | Maintain a stable symlink to the latest file. | `false`                 |
+| Variable                             | Purpose                                       | Default        |
+| ------------------------------------ | --------------------------------------------- | -------------- |
+| `LOGGING_APP_ENABLE`                 | Enable/disable application logging pipeline.  | `true`         |
+| `LOGGING_APP_STDOUT_ENABLE`          | Enable stdout target for app logs.            | `true`         |
+| `LOGGING_APP_STDOUT_LEVEL`           | Min level for stdout target.                  | `"warn"`       |
+| `LOGGING_APP_FILE_ENABLE`            | Enable file target for app logs.              | `true`         |
+| `LOGGING_APP_FILE`                   | File path prefix (rotated file base path).    | `CWD/logs/app` |
+| `LOGGING_APP_FILE_LEVEL`             | Min level for file target.                    | `"info"`       |
+| `LOGGING_APP_LOGROTATION_SIZE`       | Rotate after size.                            | `"10M"`        |
+| `LOGGING_APP_LOGROTATION_FREQUENCY`  | Rotation cadence.                             | `"daily"`      |
+| `LOGGING_APP_LOGROTATION_LIMIT`      | Keep up to N rotations.                       | `180`          |
+| `LOGGING_APP_LOGROTATION_EXTENSION`  | File extension.                               | `"log"`        |
+| `LOGGING_APP_LOGROTATION_DATEFORMAT` | Date format used in filenames.                | `"yyyy-MM-dd"` |
+| `LOGGING_APP_LOGROTATION_SYMLINK`    | Maintain a stable symlink to the latest file. | `false`        |
 
 # URL structure and request handling
 
@@ -638,7 +638,7 @@ Parser → Modifier → Endpoint Filters (optional) → Formatter
 
 ## Where filters live
 
-- Root folder: **`SERVER_PATH_FILTER`**, default `project-root/filter`.
+- Root folder: **`SERVER_PATH_FILTER`**, default `CWD/filter` (_CWD_ is the current working directory).
 - In each endpoint: set `"filter": "<file.js>"`. The code resolves the file as `path.resolve(SERVER_PATH_FILTER, <file>)`.
 
 ## Shape of a filter function
@@ -655,7 +655,7 @@ type FilterFn = (data: any, params?: Record<string, string>) => any | Promise<an
 
 **Notes:**
 
-- **File location:** Place these files under the directory configured by `SERVER_PATH_FILTER` (default `project-root/filter`). In `ENDPOINTS`, reference them by filename (e.g., `"filter": "./userById.js"`). The server resolves them with `path.resolve(SERVER_PATH_FILTER, <file>)`.
+- **File location:** Place these files under the directory configured by `SERVER_PATH_FILTER` (default `CWD/filter`, _CWD_ is the current working directory). In `ENDPOINTS`, reference them by filename (e.g., `"filter": "./userById.js"`). The server resolves them with `path.resolve(SERVER_PATH_FILTER, <file>)`.
 - The **module cache** is kept; subsequent requests reuse the loaded filter function. If you modify a filter which has already been in use, you need to restart the server.
 - **Parameters:** Only **path parameters** (from `{...}` segments) are passed in `params`. If you need query parameters, encode them into the path or implement a custom location stage.
 - **Return values:** Return any JSON-serializable value. Returning `null` for “not found” is a common, API-friendly pattern (it avoids 500 errors).
@@ -665,7 +665,7 @@ type FilterFn = (data: any, params?: Record<string, string>) => any | Promise<an
 
 ## Examples of filter functions
 
-Below are ready-to-use filter function examples you can drop into your `filter` directory (the path is controlled by `SERVER_PATH_FILTER`, default `project-root/filter`).
+Below are ready-to-use filter function examples you can drop into your `filter` directory (the path is controlled by `SERVER_PATH_FILTER`, default `CWD/filter`, _CWD_ is the current working directory).
 
 ### Example: `filter/userById.js` — Select a single item by `{id}`
 

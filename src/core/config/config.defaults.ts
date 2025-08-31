@@ -7,7 +7,7 @@ import type * as Types from './config.types'
 /**
  * Default configuration values
  */
-const app_root: string = path.resolve(import.meta.dirname, '../../../')
+const app_root: string = process.cwd()
 export const configDefaults: Types.Config = {
 	server: {
 		port: 3000,

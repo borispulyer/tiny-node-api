@@ -9,7 +9,7 @@ import type * as Types from './config.types'
 import { parsers, objects, files } from '@/core'
 import type { BootstrapTypes } from '@/core'
 
-const app_root: string = path.resolve(import.meta.dirname, '../../../')
+const app_root: string = process.cwd()
 
 /**
  * Configuration service that loads, merges and validates application settings.
