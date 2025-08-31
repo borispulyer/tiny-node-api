@@ -112,8 +112,10 @@ export class Auth {
 	 * @returns Token string if present, otherwise undefined.
 	 */
 	private _getBearerToken(request: http.IncomingMessage): string | null {
-		if (request?.headers?.authorization?.startsWith('Bearer '))
-			return request.headers.authorization.slice(7).trim()
+		const bearer = 'bearer '
+		const authorization = request?.headers?.authorization
+		if (authorization && authorization.slice(0, bearer.length).toLowerCase() === bearer)
+			return authorization.slice(bearer.length).trim()
 		return null
 	}
 }
