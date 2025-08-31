@@ -68,7 +68,7 @@ export class Config {
 		>) {
 			if (!path.isAbsolute(config.server.path[key])) {
 				throw new Errors.ConfigValidationError(
-					`Directory of config.server.path.${key} ("${config.server.path[key]}") mst be absolute.`,
+					`Directory of config.server.path.${key} ("${config.server.path[key]}") must be absolute.`,
 					config.server,
 				)
 			}

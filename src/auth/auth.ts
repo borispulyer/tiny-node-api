@@ -30,7 +30,6 @@ export class Auth {
 			)
 		// Create JWK set to receive public keys
 		const jwks = jose.createRemoteJWKSet(new URL(jwksUri))
-		await jwks.reload()
 		// Create constructor parmeters
 		return new Auth(
 			{

@@ -122,7 +122,7 @@ export async function run(
 		content: data.content,
 		mime: data.mime,
 		etag: cacheHeaders?.etag,
-		lastModified: cacheHeaders?.['last-modified'],
+		last_modified: cacheHeaders?.['last-modified'],
 	}
 	ctx.logger.trace({ module: 'location/filesystem', result }, `Request successfully handled.`)
 	return result
