@@ -1,6 +1,6 @@
 {
   "name": "tiny-node-api",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A lightweight, configurable static API server that turns files (JSON, YAML) into HTTP endpoints. It can merge multiple files, run custom filter functions and supports OAuth2/JWT.",
   "keywords": [
     "server",
