@@ -115,7 +115,8 @@ services:
       - './filter:/app/filter:ro'
       - './logs:/app/logs'
     environment:
-      ENDPOINTS: '[{"enable":true,"path":"/api/v1/users","file":"./data/users.yaml","format":"json"},{"enable":true,"path":"/api/v1/users/{id}","file":"data/users.yaml","format":"json","filter":"./userById.js"}]'
+      # You might want to copy the content of /public and /filter from the repository to use it for testing
+	  ENDPOINTS: '[{"enable":true,"path":"/api/v1/users","file":"./data/users.yaml","format":"json"},{"enable":true,"path":"/api/v1/users/{id}","file":"data/users.yaml","format":"json","filter":"./userById.js"}]'
 ```
 
 **Build and run**

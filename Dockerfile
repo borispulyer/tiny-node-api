@@ -29,12 +29,12 @@ COPY package*.json ./
 COPY --from=build /app/dist ./dist
 
 RUN npm ci --omit=dev
+
 RUN mkdir -p ./public && chown -R node:node /app
+RUN mkdir -p ./filter && chown -R node:node /app
+RUN mkdir -p ./logs && chown -R node:node /app
 
-# COPY filter ./filter
-# COPY public ./public
-
-USER node
+# USER node
 
 EXPOSE 3000
 VOLUME ["/app/public", "/app/filter", "/app/logs"]
