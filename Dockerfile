@@ -25,14 +25,12 @@ ENV PORT=3000
 
 WORKDIR /app
 
-COPY package*.json ./
-COPY --from=build /app/dist ./dist
+COPY --chown=node:node package*.json ./
+COPY --chown=node:node --from=build /app/dist ./dist
 
 RUN npm ci --omit=dev
 
-RUN mkdir -p ./public && chown -R node:node /app
-RUN mkdir -p ./filter && chown -R node:node /app
-RUN mkdir -p ./logs && chown -R node:node /app
+RUN mkdir -p ./public ./filter ./logs && chown -R node:node ./public ./filter ./logs
 
 # USER node
 
