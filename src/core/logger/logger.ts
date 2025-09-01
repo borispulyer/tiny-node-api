@@ -173,6 +173,9 @@ export class Logger {
 	): Promise<any> {
 		return pinoHttp({
 			enabled: config.enable,
+			autoLogging: {
+				ignore: (request) => request.url?.startsWith('/_heartbeat') as boolean,
+			},
 			level: Logger._getMinLogLevel(config.stdout.level, config.filesystem.level),
 			base: undefined,
 			redact: { paths: ['request.headers.authorization'] },
